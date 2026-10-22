@@ -9,7 +9,6 @@ import me.him188.ani.datasources.api.topic.Resolution
  */
 object MiTvSettingsDefaults {
     val mediaPreference: MediaPreference = MediaPreference.PlatformDefault.copy(
-        resolution = Resolution.R1080P.id,
         fallbackResolutions = listOf(Resolution.R1080P.id, Resolution.R720P.id, Resolution.R480P.id),
     )
 

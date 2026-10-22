@@ -67,6 +67,15 @@ jobs:
           name: mitv-api23-armeabi-v7a
           path: artifacts/mitv/
           retention-days: 7
+      - name: Upload compact validation report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mitv-validation-report
+          path: |
+            artifacts/mitv/build.log
+            artifacts/mitv/tests/
+          retention-days: 7
       - name: Make container cache readable by the runner
         if: always()
         run: |
