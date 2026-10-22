@@ -112,7 +112,7 @@ internal class AndroidPictureInPictureController(
     override val isSupported: Boolean = activity.supportsPictureInPicture()
 
     private val _isInPictureInPicture =
-        MutableStateFlow(activity?.isInPictureInPictureMode == true)
+        MutableStateFlow(isSupported && activity?.isInPictureInPictureMode == true)
     override val isInPictureInPicture: StateFlow<Boolean> = _isInPictureInPicture.asStateFlow()
 
     private val _isPictureInPicturePossible = MutableStateFlow(isSupported)

@@ -45,3 +45,4 @@ Docker 工具链构建通过。源码同步回归在旧脚本上失败，在当�
 - CI 39777057347 已复现 AGP 对 ndk.abiFilters 与非 universal ABI splits 的配置冲突；构建使用兼容配置，发布资产仍仅选择 ARM32 APK。
 - 优化发布流程运行 ktor-client host tests、实际 AAR 审计、R8 Release 打包、资源裁剪、实际签名与清单检查、DEX 未压缩体积检查及 API 23 类型引用扫描。
 - DEX 扫描读取类型表，不将日志文本中的类名当成系统类引用；阻止 CompletableFuture 平台类型残留，其他 Java API 类型列入报告。存在类型引用不等于路径可达，报告不能替代运行测试。
+- MiTV4-ANSM0 实机打开播放页时，画中画控制器在构造阶段调用 API 24 的 `Activity.isInPictureInPictureMode` 导致 `NoSuchMethodError`。画中画判定在 API 26 以下直接返回不支持，构造阶段仅在支持画中画时读取小窗状态。依赖审计只检查 AAR 声明的 minSdk，DEX 扫描只检查 Java API 类型，均无法发现源码直接调用的高版本系统方法；修复后的播放页需在目标电视复测。
