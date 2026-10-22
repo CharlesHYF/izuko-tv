@@ -1,6 +1,8 @@
 import org.gradle.api.Project
 
 private const val MITV_ADAPTIVE_VERSION = "1.2.0"
+private const val MITV_JETBRAINS_NAVIGATION_VERSION = "2.9.2"
+private const val MITV_ANDROID_NAVIGATION_VERSION = "2.9.7"
 
 /**
  * 配置 API 23 小米电视兼容构建的依赖边界
@@ -18,6 +20,15 @@ fun Project.configureMiTvDependencies() {
             "org.jetbrains.compose.material3.adaptive:adaptive:$MITV_ADAPTIVE_VERSION",
             "org.jetbrains.compose.material3.adaptive:adaptive-layout:$MITV_ADAPTIVE_VERSION",
             "org.jetbrains.compose.material3.adaptive:adaptive-navigation:$MITV_ADAPTIVE_VERSION",
+            "org.jetbrains.androidx.navigation:navigation-common:$MITV_JETBRAINS_NAVIGATION_VERSION",
+            "org.jetbrains.androidx.navigation:navigation-runtime:$MITV_JETBRAINS_NAVIGATION_VERSION",
+            "org.jetbrains.androidx.navigation:navigation-compose:$MITV_JETBRAINS_NAVIGATION_VERSION",
+            "androidx.navigation:navigation-common:$MITV_ANDROID_NAVIGATION_VERSION",
+            "androidx.navigation:navigation-runtime:$MITV_ANDROID_NAVIGATION_VERSION",
+            "androidx.navigation:navigation-compose:$MITV_ANDROID_NAVIGATION_VERSION",
+            "androidx.navigation:navigation-common-android:$MITV_ANDROID_NAVIGATION_VERSION",
+            "androidx.navigation:navigation-runtime-android:$MITV_ANDROID_NAVIGATION_VERSION",
+            "androidx.navigation:navigation-compose-android:$MITV_ANDROID_NAVIGATION_VERSION",
         )
         exclude(mapOf("group" to "org.openani.anitorrent", "module" to "anitorrent-native-android"))
         exclude(mapOf("group" to "org.openani.anitorrent", "module" to "anitorrent-native-android-debug"))

@@ -161,6 +161,7 @@
 | Room runtime Android 2.8.4 | 清单最低 API 23 | 保留 |
 | Compose UI Android 1.12.1 | 清单最低 API 23 | 保留共享界面与状态基础 |
 | JetBrains Adaptive 1.3.0-rc01 的 Android 实现 | adaptive、adaptive-layout、adaptive-navigation 清单最低 API 24 | 兼容构建固定这三个模块到 1.2.0；其 Android 变体使用最低 API 23 的 AndroidX 实现，默认构建保持原版本 |
+| Navigation 2.10 的 Android 实现 | JetBrains 2.10.0-beta01 与 AndroidX 2.10.0 的 common/runtime/compose 清单最低 API 24 | 兼容构建使用 JetBrains 2.9.2 及其对应 AndroidX 2.9.7；AndroidX 2.9.7 清单最低 API 23 |
 | Lifecycle runtime Android 2.11.0 | 清单最低 API 23 | 保留 |
 | SQLite bundled Android 2.6.1 | 清单最低 API 23，含 ARM32 库 | 保留 |
 | DataStore Android 1.2.0 | 清单最低 API 23 | 保留 |

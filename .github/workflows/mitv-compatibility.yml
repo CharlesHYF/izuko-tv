@@ -13,6 +13,7 @@ on:
       - 'gradle/**'
       - 'gradle.properties'
       - 'settings.gradle.kts'
+      - 'Makefile'
       - '.github/workflows/mitv-compatibility.yml'
   workflow_dispatch:
 
@@ -42,12 +43,7 @@ jobs:
       - name: Build isolated toolchain
         run: docker build --platform linux/amd64 -t izuko-mitv-build:local tools/docker/mitv
       - name: Test settings, buffering, dependencies and APK
-        run: >-
-          bash tools/docker/mitv/run.sh
-          :app:shared:app-data:testAndroidHostTest --tests '*MiTvSettingsDefaultsTest'
-          :app:shared:video-player:testAndroidHostTest --tests '*ThrottledSourceLoadControlTest'
-          :app:android:auditMiTvDependencies
-          :app:android:assembleDefaultTvDebug
+        run: make verify
       - name: Annotate validation failures
         if: failure()
         run: |

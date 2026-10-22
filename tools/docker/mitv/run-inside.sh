@@ -29,6 +29,20 @@ bash /workspace/scripts/gradle-lock.sh "$@" \
 build_status=${PIPESTATUS[0]}
 set -e
 
+if [[ "$*" == *testAndroidHostTest* ]]; then
+    for module in app-data video-player; do
+        report_dir="/workspace/app/shared/$module/build/test-results/testAndroidHostTest"
+        if [ -d "$report_dir" ]; then
+            mkdir -p "/out/tests/$module"
+            for report in "$report_dir"/*.xml; do
+                if [ -f "$report" ]; then
+                    cp "$report" "/out/tests/$module/"
+                fi
+            done
+        fi
+    done
+fi
+
 if [ "$build_status" -eq 0 ] && [[ "$*" == *assemble* ]] && [ -d /workspace/app/android/build/outputs/apk ]; then
     cp -R /workspace/app/android/build/outputs/apk /out/
 fi
