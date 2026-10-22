@@ -198,4 +198,4 @@
 - ANTLR Kotlin runtime 用于 BBCode 运行时解析，属于运行依赖；构建流程检查依赖树和优化 DEX 中的 ANTLR 生成器类，不能将解析器所需 runtime 设为 compileOnly。
 - 测试包使用构建任务专属测试密钥。密钥不提交、不上传、不进入缓存；不同构建的测试包不承诺可覆盖安装。
 - API 23 DNS 并行查询通过 CountDownLatch 等待首个结果及收集窗口，避免调用系统缺失的 CompletableFuture。
-- MiTV 的 R8 规则由独立任务生成，全局名称保留规则允许代码优化，JNI、反射、序列化和 Guava 隔离规则保持原有约束。
+- MiTV 使用共享 R8 保护规则，保留 JNI、反射、序列化和 Guava 隔离约束。
