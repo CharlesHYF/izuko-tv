@@ -75,8 +75,8 @@ abstract class MiTvDependencyAudit : DefaultTask() {
 /** 注册兼容包运行依赖审计任务。 */
 fun Project.registerMiTvDependencyAudit() {
     val enabled = buildMiTvApp
-    val runtime = configurations.named("defaultTvReleaseRuntimeClasspath")
     tasks.register<MiTvDependencyAudit>("auditMiTvDependencies") {
+        val runtime = configurations.named("defaultTvReleaseRuntimeClasspath")
         group = "verification"
         description = "Checks the MiTV release dependency SDK and native ABI requirements"
         runtimeFiles.from(runtime.map { configuration ->

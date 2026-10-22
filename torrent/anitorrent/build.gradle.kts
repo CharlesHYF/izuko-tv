@@ -28,7 +28,11 @@ kotlin {
         implementation(libs.atomicfu)
     }
     sourceSets.getByName("jvmMain").dependencies {
-        api(anitorrentLibs.anitorrent.native)
+        if (buildMiTvApp) {
+            api(anitorrentLibs.anitorrent.native.desktop.jni)
+        } else {
+            api(anitorrentLibs.anitorrent.native)
+        }
     }
     sourceSets.getByName("desktopMain").dependencies {
         val triple = getAnitorrentTriple()

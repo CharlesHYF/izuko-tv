@@ -27,6 +27,10 @@ bash tools/docker/mitv/run.sh :app:shared:video-player:testAndroidHostTest --tes
 
 容器固定命名为 `izuko-mitv-build`，同一时间只运行一次，避免共享卷并发写入。容器退出后自动删除，`izuko-mitv-gradle` 和 `izuko-mitv-workspace` 两个任务专属卷保存缓存。迁移设备时重新构建镜像即可，卷不是必需输入。
 
+构建容器默认最多使用 6GiB 内存、3 个 CPU，不使用额外 swap；可用 `MITV_MEMORY` 和 `MITV_CPUS` 调整。这是编译工具的资源限制，不代表目标电视的运行内存。
+
+CI 使用 `MITV_GRADLE_CACHE_DIR` 指定任务专属缓存目录并交给 Actions Cache 保存。该参数可以用于独立的本地任务目录，不应指向宿主机已有的全局 Gradle 缓存。
+
 ## 隔离边界
 
 - 宿主机源码目录只读挂载，源代码复制到工作卷后构建，Gradle 经 `scripts/gradle-lock.sh` 执行。

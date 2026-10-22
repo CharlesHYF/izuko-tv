@@ -28,8 +28,17 @@ jobs:
     if: github.repository == 'CharlesHYF/izuko-tv'
     runs-on: ubuntu-24.04
     timeout-minutes: 60
+    env:
+      MITV_GRADLE_CACHE_DIR: ${{ github.workspace }}/.mitv-ci-cache
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/cache/restore@v4
+        id: gradle-cache
+        with:
+          path: .mitv-ci-cache
+          key: mitv-gradle-${{ runner.os }}-${{ hashFiles('gradle/libs.versions.toml', 'gradle/wrapper/gradle-wrapper.properties') }}-${{ github.sha }}
+          restore-keys: |
+            mitv-gradle-${{ runner.os }}-${{ hashFiles('gradle/libs.versions.toml', 'gradle/wrapper/gradle-wrapper.properties') }}-
       - name: Build isolated toolchain
         run: docker build --platform linux/amd64 -t izuko-mitv-build:local tools/docker/mitv
       - name: Test settings, buffering, dependencies and APK
@@ -62,3 +71,8 @@ jobs:
           name: mitv-api23-armeabi-v7a
           path: artifacts/mitv/
           retention-days: 7
+      - uses: actions/cache/save@v4
+        if: always()
+        with:
+          path: .mitv-ci-cache
+          key: ${{ steps.gradle-cache.outputs.cache-primary-key }}

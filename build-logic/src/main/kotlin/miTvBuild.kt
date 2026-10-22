@@ -13,5 +13,6 @@ fun Project.configureMiTvDependencies() {
     if (!buildMiTvApp) return
     configurations.configureEach {
         exclude(mapOf("group" to "org.openani.anitorrent", "module" to "anitorrent-native-android"))
+        exclude(mapOf("group" to "org.openani.anitorrent", "module" to "anitorrent-native-android-debug"))
     }
 }

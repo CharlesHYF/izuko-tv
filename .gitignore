@@ -37,6 +37,7 @@ out/
 
 .env
 /artifacts/
+/.mitv-ci-cache/
 kls_database.db
 /torrent/anitorrent/*.dylib
 /torrent/anitorrent/*.dll

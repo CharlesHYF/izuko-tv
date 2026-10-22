@@ -6,11 +6,20 @@ set -euo pipefail
 
 project_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
 output_dir="${MITV_OUTPUT_DIR:-$project_root/artifacts/mitv}"
+memory_limit="${MITV_MEMORY:-6g}"
+cpu_limit="${MITV_CPUS:-3}"
+gradle_mount='type=volume,source=izuko-mitv-gradle,target=/cache/gradle'
 mkdir -p "$output_dir"
+if [ -n "${MITV_GRADLE_CACHE_DIR:-}" ]; then
+    mkdir -p "$MITV_GRADLE_CACHE_DIR"
+    cache_dir="$(cd "$MITV_GRADLE_CACHE_DIR" && pwd)"
+    gradle_mount="type=bind,source=$cache_dir,target=/cache/gradle"
+fi
 
 docker run --rm --platform linux/amd64 --name izuko-mitv-build \
+    --memory "$memory_limit" --memory-swap "$memory_limit" --cpus "$cpu_limit" \
     --mount "type=bind,source=$project_root,target=/source,readonly" \
     --mount "type=bind,source=$output_dir,target=/out" \
     --mount type=volume,source=izuko-mitv-workspace,target=/workspace \
-    --mount type=volume,source=izuko-mitv-gradle,target=/cache/gradle \
+    --mount "$gradle_mount" \
     izuko-mitv-build:local bash /source/tools/docker/mitv/run-inside.sh "$@"
