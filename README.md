@@ -73,6 +73,10 @@ Windows、macOS、Linux 和 iOS 请使用[上游 Animeko](https://github.com/ope
 
 ## 参与开发
 
+### 小米电视 API 23 兼容开发
+
+本 fork 包含面向 MiTV4-ANSM0（Android 6.0.1、armeabi-v7a、1GB 内存）的兼容构建配置。构建工具隔离在 Docker 中，使用方法见 [Docker 构建说明](tools/docker/mitv/README.md)，适配范围与验证要求见 [兼容模块文档](docs/modules/android/mitv-low-memory.md)。目标电视的硬解和流畅度仍需真机验证。
+
 欢迎提交 PR。
 
 - [Kotlin 多平台][Kotlin Multiplatform]架构，界面使用 [Compose Multiplatform][Compose Multiplatform]；电视界面在独立的 `app/shared/ui-tv` 模块

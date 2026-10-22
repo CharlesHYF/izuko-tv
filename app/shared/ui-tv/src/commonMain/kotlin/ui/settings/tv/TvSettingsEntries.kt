@@ -9,8 +9,10 @@
 
 package me.him188.ani.app.ui.settings.tv
 
+import me.him188.ani.app.platform.currentAniBuildConfig
+
 import android.os.Build
-import android.os.LocaleList
+import androidx.core.os.LocaleListCompat
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import me.him188.ani.app.data.models.preference.DarkMode
@@ -288,7 +290,7 @@ val TvSettingsCatalogEntries: List<TvSettingsCategory> = tvSettingsCatalog {
 
     section(Lang.settings_category_network_storage)
     category(SettingsTab.PROXY, Lang.settings_tab_proxy) { networkItems() }
-    category(SettingsTab.BT, Lang.settings_tab_bt) { btItems() }
+    if (!currentAniBuildConfig.miTvCompatibility) category(SettingsTab.BT, Lang.settings_tab_bt) { btItems() }
     category(SettingsTab.STORAGE, Lang.settings_tab_storage) { storageItems() }
 
     section(Lang.settings_category_others)
@@ -364,7 +366,7 @@ private fun TvSettingsItemsBuilder.appearanceItems() {
         write = { tag ->
             listOf(
                 TvSettingsEdit.Run { env ->
-                    val locales = if (tag.isEmpty()) LocaleList.getEmptyLocaleList() else LocaleList.forLanguageTags(tag)
+                    val locales = if (tag.isEmpty()) LocaleListCompat.getEmptyLocaleList() else LocaleListCompat.forLanguageTags(tag)
                     if (AppLocales.get(env.context).toLanguageTags() != locales.toLanguageTags()) {
                         AppLocales.set(env.context, locales)
                     }

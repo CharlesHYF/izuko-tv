@@ -10,6 +10,7 @@
 package me.him188.ani.app.platform
 
 import android.app.ActivityManager
+import me.him188.ani.app.platform.currentAniBuildConfig
 
 actual fun Context.isLowRamDevice(): Boolean =
-    getSystemService(ActivityManager::class.java)?.isLowRamDevice == true
+    currentAniBuildConfig.miTvCompatibility || getSystemService(ActivityManager::class.java)?.isLowRamDevice == true

@@ -180,6 +180,8 @@ idea {
     }
 }
 
+registerMiTvDependencyAudit()
+
 googleServices {
     missingGoogleServicesStrategy = (getLocalProperty("ani.enable.firebase") ?: "false").toBooleanStrict()
         .let {

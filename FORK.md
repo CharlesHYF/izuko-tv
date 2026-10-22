@@ -5,6 +5,8 @@
 
 ## 一、架构总览
 
+小米电视专用兼容构建使用 `-Pani.android.mitv=true`，最低 API 23、armeabi-v7a；它排除 API 26 的本地 BT 原生库和 API 24 的 ONNX 识别运行库，保留共享业务及可用的设置开关。默认采用流畅视觉档、低内存缓存与播放缓冲策略。独立 Docker 构建及测试见 `tools/docker/mitv/README.md`，完整范围见 `docs/modules/android/mitv-low-memory.md`。
+
 TV 适配已经做成**独立于其他平台的构建目标**,三层隔离:
 
 | 层 | 载体 | 效果 |

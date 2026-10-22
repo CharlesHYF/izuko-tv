@@ -9,6 +9,9 @@
 
 package me.him188.ani.app.videoplayer.media
 
+import me.him188.ani.app.platform.currentAniBuildConfig
+import me.him188.ani.app.videoplayer.player.MiTvPlaybackLimits
+
 import android.content.Context
 import android.net.Uri
 import android.os.Handler
@@ -159,6 +162,7 @@ class LibassExoPlayerMediampPlayer private constructor(
             audioTimeStretch,
             mediaSourceInterceptor = pipeline::intercept,
             configurePlayerBuilder = { builder ->
+                configureMiTvPlayer(builder, context)
                 builder.setDetachSurfaceTimeoutMs(DETACH_SURFACE_TIMEOUT_MILLIS)
                 FfmpegAudioFallback.install(builder, context, audioTimeStretch, passthrough)
                 configurePlayerBuilder?.invoke(builder)
@@ -713,14 +717,14 @@ private class LibassMediaSourcePipeline(
     val assHandler = AssHandler(
         // 画在视频上面单独一层 GL 视图里 (LiftableAssSubtitleView), 控制层出现时下半部分能挪开
         renderType = AssRenderType.OVERLAY_OPEN_GL,
-        config = AssHandlerConfig(maxRenderPixels = 1920 * 1080),
+        config = AssHandlerConfig(maxRenderPixels = if (currentAniBuildConfig.miTvCompatibility) MiTvPlaybackLimits.SUBTITLE_RENDER_PIXELS else 1920 * 1080),
     )
     private val subtitleParserFactory = CharsetFixingSubtitleParserFactory(AssSubtitleParserFactory(assHandler))
     private val extractorsFactory = DefaultExtractorsFactory()
         .withAssMkv(subtitleParserFactory, assHandler)
 
     /** 被限速的网盘直链换一套缓冲策略 (见 [ThrottledSourceLoadControl]); 每准备一个媒体按它的提示头切换. */
-    val loadControl = ThrottledSourceLoadControl(diskCacheOn = diskCacheEnabled())
+    val loadControl = ThrottledSourceLoadControl(diskCacheOn = diskCacheEnabled(), lowMemory = currentAniBuildConfig.miTvCompatibility)
 
     /** 拖动预览期间挡住存本机的媒体的联网读取 (见 [SeekPreview]). */
     val networkGate = PlaybackNetworkGate()

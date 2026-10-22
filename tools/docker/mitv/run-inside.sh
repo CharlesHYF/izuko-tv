@@ -26,7 +26,7 @@ bash /workspace/scripts/gradle-lock.sh "$@" \
 build_status=${PIPESTATUS[0]}
 set -e
 
-if [ -d /workspace/app/android/build/outputs/apk ]; then
+if [ "$build_status" -eq 0 ] && [[ "$*" == *assemble* ]] && [ -d /workspace/app/android/build/outputs/apk ]; then
     cp -R /workspace/app/android/build/outputs/apk /out/
 fi
 exit "$build_status"

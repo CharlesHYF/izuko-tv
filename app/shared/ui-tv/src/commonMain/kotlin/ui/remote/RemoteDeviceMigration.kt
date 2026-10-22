@@ -10,7 +10,7 @@
 package me.him188.ani.app.ui.remote
 
 import android.content.Context
-import android.os.LocaleList
+import androidx.core.os.LocaleListCompat
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
@@ -106,7 +106,7 @@ internal object RemoteDeviceMigration {
 
     private val exporter: DeviceMigrationExporter get() = koin.get()
 
-    /** 整机数据, 加上应用内语言 (`LocaleList.toLanguageTags`). */
+    /** 整机数据, 加上应用内语言 (`LocaleListCompat.toLanguageTags`). */
     private fun exportShared(): LanHttpResponse {
         val shared = runBlocking { exporter.shared() }.copy(appLanguage = AppLocales.get(context).toLanguageTags())
         logger.info { "Device migration: exporting shared data" }
@@ -312,7 +312,7 @@ internal object RemoteDeviceMigration {
         }
         // 设置换成了做完引导的那台的, 这台不用再走一遍
         TvOnboardingGate.markDoneNow(context)
-        val language = LocaleList.forLanguageTags(shared.appLanguage)
+        val language = LocaleListCompat.forLanguageTags(shared.appLanguage)
         if (language != AppLocales.get(context)) AppLocales.set(context, language)
     }
 

@@ -10,7 +10,7 @@
 package me.him188.ani.app.ui.settings.tabs.app
 
 import android.os.Build
-import android.os.LocaleList
+import androidx.core.os.LocaleListCompat
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -54,8 +54,8 @@ internal actual fun SettingsScope.LanguageSettingsPlatform(
         values = { supportedLocales },
         itemText = { Text(renderLocale(it)) },
         onSelect = { locale ->
-            val locales = locale?.let { LocaleList.forLanguageTags(it.toLanguageTag()) }
-                ?: LocaleList.getEmptyLocaleList()
+            val locales = locale?.let { LocaleListCompat.forLanguageTags(it.toLanguageTag()) }
+                ?: LocaleListCompat.getEmptyLocaleList()
             if (AppLocales.get(context).toLanguageTags() != locales.toLanguageTags()) {
                 AppLocales.set(context, locales)
             }

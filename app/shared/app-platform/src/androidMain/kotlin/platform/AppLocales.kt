@@ -15,6 +15,9 @@ import android.content.Context
 import android.content.res.Configuration
 import android.os.Build
 import android.os.LocaleList
+import androidx.core.os.LocaleListCompat
+import androidx.core.os.ConfigurationCompat
+import java.util.Locale
 import java.util.concurrent.atomic.AtomicBoolean
 
 /**
@@ -34,10 +37,10 @@ object AppLocales {
 
     private val defaultLocalesKeeperRegistered = AtomicBoolean(false)
 
-    fun get(context: Context): LocaleList {
+    fun get(context: Context): LocaleListCompat {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            return context.getSystemService(LocaleManager::class.java)?.applicationLocales
-                ?: LocaleList.getEmptyLocaleList()
+            return context.getSystemService(LocaleManager::class.java)?.applicationLocales?.let(LocaleListCompat::wrap)
+                ?: LocaleListCompat.getEmptyLocaleList()
         }
         return readStored(context)
     }
@@ -45,9 +48,9 @@ object AppLocales {
     /**
      * 设置应用内语言. 12L 及以下会重建 [context] 所在的 Activity 使其生效 (13+ 由系统重建).
      */
-    fun set(context: Context, locales: LocaleList) {
+    fun set(context: Context, locales: LocaleListCompat) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            context.getSystemService(LocaleManager::class.java)?.applicationLocales = locales
+            context.getSystemService(LocaleManager::class.java)?.applicationLocales = LocaleList.forLanguageTags(locales.toLanguageTags())
             return
         }
         // 同步落盘: 紧接着重建的 Activity 要在 attachBaseContext 里读到新值
@@ -68,7 +71,11 @@ object AppLocales {
         if (locales.isEmpty) return base
         setDefaultLocales(locales)
         val config = Configuration(base.resources.configuration).apply {
-            setLocales(locales)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                setLocales(LocaleList.forLanguageTags(locales.toLanguageTags()))
+            } else {
+                setLocale(locales[0])
+            }
             setLayoutDirection(locales[0])
         }
         return base.createConfigurationContext(config)
@@ -95,21 +102,23 @@ object AppLocales {
         )
     }
 
-    private fun readStored(context: Context): LocaleList {
+    private fun readStored(context: Context): LocaleListCompat {
         val tags = runCatching {
             preferences(context).getString(KEY_LANGUAGE_TAGS, null)
         }.getOrNull()
-        return if (tags.isNullOrBlank()) LocaleList.getEmptyLocaleList() else LocaleList.forLanguageTags(tags)
+        return if (tags.isNullOrBlank()) LocaleListCompat.getEmptyLocaleList() else LocaleListCompat.forLanguageTags(tags)
     }
 
     /**
      * 系统为本应用选出的语言列表 (首项是应用资源里最匹配的系统语言), 与进程启动时系统设的默认语言一致.
      */
-    private fun systemLocales(context: Context): LocaleList =
-        (context.applicationContext ?: context).resources.configuration.locales
+    private fun systemLocales(context: Context): LocaleListCompat =
+        ConfigurationCompat.getLocales((context.applicationContext ?: context).resources.configuration)
 
-    private fun setDefaultLocales(locales: LocaleList) {
-        if (!locales.isEmpty) LocaleList.setDefault(locales)
+    private fun setDefaultLocales(locales: LocaleListCompat) {
+        val first = locales[0] ?: return
+        Locale.setDefault(first)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) LocaleList.setDefault(LocaleList.forLanguageTags(locales.toLanguageTags()))
     }
 
     private fun preferences(context: Context) =

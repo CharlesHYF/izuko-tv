@@ -109,7 +109,7 @@ kotlin {
     sourceSets.androidMain.dependencies {
         implementation(libs.androidx.browser)
         implementation(libs.androidx.webkit)
-        implementation(libs.onnxruntime.android)
+        if (!buildMiTvApp) implementation(libs.onnxruntime.android)
         implementation(libs.conscrypt.android) // 加密直连 (ConscryptEchTransport)
         api(libs.datastore) // PlatformDataStoreManagerAndroid (data/persistent, 自 :app:shared 搬迁)
         api(libs.datastore.preferences)
@@ -122,6 +122,14 @@ kotlin {
         implementation(libs.stately.common) // fixes koin bug
         implementation(libs.kotlinx.io.okio)
     }
+}
+
+if (buildMiTvApp) {
+    kotlin.sourceSets.androidMain {
+        kotlin.exclude("**/AndroidOnnxImageCaptchaRecognizer.kt")
+        kotlin.srcDir("src/mitvMain/kotlin")
+    }
+    kotlin.sourceSets.getByName("androidDeviceTest").kotlin.exclude("**/AndroidOnnxImageCaptchaRecognizerTest.kt")
 }
 
 compose.resources {

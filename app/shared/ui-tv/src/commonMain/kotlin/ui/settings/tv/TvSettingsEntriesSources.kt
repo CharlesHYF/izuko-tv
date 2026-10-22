@@ -9,6 +9,8 @@
 
 package me.him188.ani.app.ui.settings.tv
 
+import me.him188.ani.app.platform.currentAniBuildConfig
+
 import androidx.compose.runtime.snapshotFlow
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -489,7 +491,7 @@ internal fun TvSettingsItemsBuilder.mediaSelectorItems() {
     )
     toggle(
         selector, Lang.settings_media_image_captcha_auto_solve, Lang.settings_media_image_captcha_auto_solve_description,
-        visible = { it.preferKind == MediaSourceKind.WEB },
+        visible = { !currentAniBuildConfig.miTvCompatibility && it.preferKind == MediaSourceKind.WEB },
         read = { it.enableImageCaptchaAutoSolve },
         write = { copy(enableImageCaptchaAutoSolve = it) },
     )

@@ -10,6 +10,7 @@
 package me.him188.ani.app.domain.torrent
 
 import kotlinx.coroutines.CoroutineName
+import me.him188.ani.app.platform.currentAniBuildConfig
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import me.him188.ani.app.data.repository.torrent.peer.PeerFilterSubscriptionRepository
@@ -89,7 +90,7 @@ class DefaultTorrentManager(
         // 每个引擎都会创建一个 storage, 而它们共用 MediaDownloadManager.LOCAL_FS_MEDIA_SOURCE_ID.
         // 同一个种子若在两个引擎里各缓存一次, 产生的 CachedMedia id 相同, MediaFetcher 的 distinctBy 会丢掉一个.
         // 因此这里可以同时启用两个引擎: 一个 media 只会被其中一个引擎缓存, id 不会撞车. 见 selectTorrentStorage.
-        listOfNotNull(pikpak, anitorrent)
+        if (currentAniBuildConfig.miTvCompatibility) listOfNotNull(pikpak) else listOfNotNull(pikpak, anitorrent)
     }
 
     companion object {

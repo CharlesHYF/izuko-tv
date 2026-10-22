@@ -23,7 +23,7 @@ bash tools/docker/mitv/run.sh :app:shared:video-player:testAndroidHostTest --tes
 
 脚本固定传入 `ani.android.mitv=true`、`ani.android.abis=armeabi-v7a` 和 fork 仓库地址。正式版本、其他平台和既有 API 25 兼容包不启用此开关。
 
-输出目录默认为 `artifacts/mitv`，可通过 `MITV_OUTPUT_DIR` 指定。目录包含最近一次构建日志和成功生成的 APK；构建失败时不能把目录里已有的 APK 当作本次产物。
+输出目录默认为 `artifacts/mitv`，可通过 `MITV_OUTPUT_DIR` 指定。目录包含最近一次构建日志，只有 assemble 成功后才复制 APK；构建失败时不能把目录里已有的 APK 当作本次产物。
 
 容器固定命名为 `izuko-mitv-build`，同一时间只运行一次，避免共享卷并发写入。容器退出后自动删除，`izuko-mitv-gradle` 和 `izuko-mitv-workspace` 两个任务专属卷保存缓存。迁移设备时重新构建镜像即可，卷不是必需输入。
 

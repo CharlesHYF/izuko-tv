@@ -145,6 +145,7 @@ buildConfig {
     }
 
     platform("desktop") {
+        booleanField("miTvCompatibility", false)
         stringField("versionName", project.version.toString())
         expressionField(
             "isDebug",
@@ -172,6 +173,7 @@ buildConfig {
 
     // Android platform configuration
     platform("android") {
+        booleanField("miTvCompatibility", buildMiTvApp)
         stringField("versionName", project.version.toString())
         expressionField("isDebug", "me.him188.ani.buildconfig.AndroidBuildConfig.DEBUG")
         stringField("dandanplayAppId", dandanplayAppId)
@@ -198,6 +200,7 @@ buildConfig {
     // iOS platform configuration (only if enabled)
     if (enableIos) {
         platform("ios") {
+            booleanField("miTvCompatibility", false)
             stringField("versionName", project.version.toString())
             booleanField("isDebug", false)
             stringField("dandanplayAppId", dandanplayAppId)

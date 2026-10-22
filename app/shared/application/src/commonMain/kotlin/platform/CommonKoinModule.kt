@@ -414,7 +414,7 @@ private fun KoinApplication.otherModules(
                 BrowserImageCaptchaSolver(recognizer),
             ),
             solverEnabled = {
-                settingsRepository.mediaSelectorSettings.flow.first().enableImageCaptchaAutoSolve
+                !currentAniBuildConfig.miTvCompatibility && settingsRepository.mediaSelectorSettings.flow.first().enableImageCaptchaAutoSolve
             },
             searchRoutes = listOf(GirigiriSearchRoute(evaluator)),
             maxSessions = browserFactory.recommendedMaxSessions,

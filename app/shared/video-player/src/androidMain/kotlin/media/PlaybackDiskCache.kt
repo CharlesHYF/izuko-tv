@@ -9,6 +9,8 @@
 
 package me.him188.ani.app.videoplayer.media
 
+import me.him188.ani.app.platform.currentAniBuildConfig
+
 import android.content.Context
 import androidx.annotation.OptIn as AndroidxOptIn
 import androidx.media3.common.util.UnstableApi
@@ -66,7 +68,8 @@ object PlaybackDiskCache {
     /** 此刻的剩余空间够不够存 (判据同 [get] 第一次打开时), 不打开缓存. */
     fun hasRoom(context: Context): Boolean = maxBytesFor(context.cacheDir.usableSpace) >= MIN_BYTES
 
-    private fun maxBytesFor(freeBytes: Long): Long = (freeBytes / 4).coerceAtMost(MAX_BYTES)
+    private fun maxBytesFor(freeBytes: Long): Long =
+        (freeBytes / 4).coerceAtMost(if (currentAniBuildConfig.miTvCompatibility) MITV_MAX_BYTES else MAX_BYTES)
 
     /** [cache] 里记着的 [key] 的文件总长 (播放器第一次读到时记下), 没记时为 -1. 会等缓存初始化完, 别在主线程上调. */
     internal fun contentLength(cache: Cache, key: String): Long = ContentMetadata.getContentLength(cache.getContentMetadata(key))
@@ -153,6 +156,7 @@ object PlaybackDiskCache {
 
     private const val MIN_BYTES = 256 * MIB
     private const val MAX_BYTES = 4096 * MIB
+    private const val MITV_MAX_BYTES = 64 * MIB
 
     private val logger = logger<PlaybackDiskCache>()
 }

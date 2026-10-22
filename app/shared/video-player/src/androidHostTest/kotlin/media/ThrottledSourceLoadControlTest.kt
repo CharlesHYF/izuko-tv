@@ -28,6 +28,23 @@ import androidx.annotation.OptIn as AndroidxOptIn
  */
 @AndroidxOptIn(UnstableApi::class)
 class ThrottledSourceLoadControlTest {
+    @Test
+    fun `low memory playback retains no backwards buffer`() {
+        assertEquals(0L, ThrottledSourceLoadControl(lowMemory = true).getBackBufferDurationUs(PlayerId.UNSET))
+    }
+
+    @Test
+    fun `low memory throttled sources do not wait beyond their buffer budget`() {
+        val control = ThrottledSourceLoadControl(lowMemory = true)
+        control.throttled = true
+        control.onPrepared(PlayerId.UNSET)
+        assertFalse(control.shouldContinueLoading(parameters(15.0)))
+        repeat(5) {
+            assertTrue(control.shouldStartPlayback(parameters(6.0, rebuffering = true)))
+        }
+        assertFalse(control.boosted)
+    }
+
     // DefaultLoadControl 会到时间线里查这个媒体 (看是不是本地播放), 要一个真的时间线
     private val timeline = SinglePeriodTimeline(1_000_000_000L, true, false, false, null, MediaItem.EMPTY)
 

@@ -9,6 +9,8 @@
 
 package me.him188.ani.app.domain.mediasource.web.captcha
 
+import me.him188.ani.app.platform.currentAniBuildConfig
+
 import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.os.Build
@@ -587,7 +589,9 @@ class AndroidCaptchaBrowserFactory(
 ) : CaptchaBrowserFactory {
     override val isSupported: Boolean get() = true
 
-    override val recommendedMaxSessions: Int get() = 2
+    override val recommendedMaxSessions: Int get() = if (currentAniBuildConfig.miTvCompatibility) MITV_MAX_BROWSER_SESSIONS else 2
 
     override suspend fun create(): CaptchaBrowser = WebViewCaptchaBrowser.create(context)
 }
+
+private const val MITV_MAX_BROWSER_SESSIONS = 1

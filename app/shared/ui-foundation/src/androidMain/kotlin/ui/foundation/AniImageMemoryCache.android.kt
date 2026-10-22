@@ -15,13 +15,17 @@ import android.content.res.Configuration
 import com.github.panpf.sketch.PlatformContext
 import com.github.panpf.sketch.Sketch
 import kotlin.concurrent.thread
+import me.him188.ani.app.platform.currentAniBuildConfig
 
 internal actual fun aniImageMemoryCacheSize(context: PlatformContext): Long? {
     val activityManager = context.getSystemService(ActivityManager::class.java) ?: return null
     val memoryInfo = ActivityManager.MemoryInfo()
     activityManager.getMemoryInfo(memoryInfo)
-    return imageMemoryCacheSizeForTotalMemory(memoryInfo.totalMem)
+    val size = imageMemoryCacheSizeForTotalMemory(memoryInfo.totalMem)
+    return if (currentAniBuildConfig.miTvCompatibility) minOf(size, MITV_IMAGE_CACHE_BYTES) else size
 }
+
+private const val MITV_IMAGE_CACHE_BYTES = 16L * 1024 * 1024
 
 internal actual fun Sketch.clearMemoryCacheOnCriticalMemory(context: PlatformContext): () -> Unit {
     val appContext = context.applicationContext

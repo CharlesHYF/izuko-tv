@@ -83,7 +83,7 @@ val Project.enableFirebase
  * @see androidMinSdk
  */
 val Project.buildLegacyAndroidApp
-    get() = getPropertyOrNull("ani.android.legacy")?.toBooleanStrict() ?: false
+    get() = buildMiTvApp || (getPropertyOrNull("ani.android.legacy")?.toBooleanStrict() ?: false)
 
 /**
  * 兼容包的 minSdk. 25 = Android 7.1.1, 也是 ISRG Root X1 进入系统信任库的第一个版本 ——
@@ -96,4 +96,10 @@ const val LEGACY_ANDROID_MIN_SDK = 25
  * 开兼容包时要整体下调, 否则库模块仍是 27, manifest 合并会直接失败.
  */
 val Project.androidMinSdk: Int
-    get() = if (buildLegacyAndroidApp) LEGACY_ANDROID_MIN_SDK else getIntProperty("android.min.sdk")
+    get() = when {
+        buildMiTvApp -> MITV_ANDROID_MIN_SDK
+        buildLegacyAndroidApp -> LEGACY_ANDROID_MIN_SDK
+        else -> getIntProperty("android.min.sdk")
+    }
+
+const val MITV_ANDROID_MIN_SDK = 23

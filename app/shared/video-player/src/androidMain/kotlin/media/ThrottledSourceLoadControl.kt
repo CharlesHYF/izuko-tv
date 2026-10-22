@@ -22,6 +22,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import me.him188.ani.app.videoplayer.player.PlayerBufferPolicy
+import me.him188.ani.app.videoplayer.player.MiTvPlaybackLimits
 import me.him188.ani.utils.logging.info
 import me.him188.ani.utils.logging.logger
 import androidx.annotation.OptIn as AndroidxOptIn
@@ -55,6 +56,7 @@ import androidx.annotation.OptIn as AndroidxOptIn
 @AndroidxOptIn(UnstableApi::class)
 internal class ThrottledSourceLoadControl(
     diskCacheOn: Boolean = false,
+    private val lowMemory: Boolean = false,
 ) : LoadControl {
     /** 当前媒体是不是被限速的网盘直链; 在准备媒体时 (主线程) 设, 播放线程读. 每设一次算换了一个媒体, 卡住的次数从头算. */
     @Volatile
@@ -97,20 +99,27 @@ internal class ThrottledSourceLoadControl(
     // 往后保留 [PlayerBufferPolicy.backward] (保留到上一个关键帧): media3 默认播过就释放, 在线源往回退一点也要重新下载
     private val delegate = DefaultLoadControl.Builder()
         .setBufferDurationsMs(
-            (THROTTLED_MAX_BUFFER_US / 1000).toInt(),
-            (THROTTLED_MAX_BUFFER_US / 1000).toInt(),
+            if (lowMemory) MiTvPlaybackLimits.BUFFER_MILLIS else (THROTTLED_MAX_BUFFER_US / 1000).toInt(),
+            if (lowMemory) MiTvPlaybackLimits.BUFFER_MILLIS else (THROTTLED_MAX_BUFFER_US / 1000).toInt(),
             DefaultLoadControl.DEFAULT_BUFFER_FOR_PLAYBACK_MS,
             DefaultLoadControl.DEFAULT_BUFFER_FOR_PLAYBACK_AFTER_REBUFFER_MS,
         )
         .setBackBuffer(
-            if (diskCacheOn) DISK_CACHE_BACK_BUFFER_MS else PlayerBufferPolicy.backward.inWholeMilliseconds.toInt(),
+            if (lowMemory) 0 else if (diskCacheOn) DISK_CACHE_BACK_BUFFER_MS else PlayerBufferPolicy.backward.inWholeMilliseconds.toInt(),
             /* retainBackBufferFromKeyframe = */ true,
         )
+        .apply {
+            if (lowMemory) {
+                setTargetBufferBytes(MiTvPlaybackLimits.BUFFER_BYTES)
+                setPrioritizeTimeOverSizeThresholds(false)
+            }
+        }
         .build()
 
     override fun shouldContinueLoading(parameters: LoadControl.Parameters): Boolean {
         updateBoost(parameters)
         if (previewing && !previewParked && parameters.bufferedDurationUs >= PREVIEW_MAX_BUFFER_US) return false
+        if (lowMemory) return delegate.shouldContinueLoading(parameters)
         if (!throttled && parameters.bufferedDurationUs >= DEFAULT_MAX_BUFFER_US) return false
         if (throttled && !parameters.playWhenReady && parameters.bufferedDurationUs >= PAUSED_MAX_BUFFER_US) return false
         return delegate.shouldContinueLoading(parameters)
@@ -119,6 +128,7 @@ internal class ThrottledSourceLoadControl(
     override fun shouldStartPlayback(parameters: LoadControl.Parameters): Boolean {
         updateBoost(parameters)
         if (previewing) return true // 预览时播放器停着, 这里只决定画面出来后算不算就绪
+        if (lowMemory) return delegate.shouldStartPlayback(parameters)
         if (!throttled) return delegate.shouldStartPlayback(parameters)
         if (mediaChanged) {
             mediaChanged = false
@@ -147,6 +157,7 @@ internal class ThrottledSourceLoadControl(
     private fun updateBoost(parameters: LoadControl.Parameters) {
         val buffered = parameters.bufferedDurationUs
         val next = when {
+            lowMemory -> false
             !throttled -> false
             parameters.rebuffering || buffered < BOOST_ON_US -> true
             buffered >= BOOST_OFF_US -> false

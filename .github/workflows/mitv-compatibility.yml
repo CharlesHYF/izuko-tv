@@ -1,0 +1,48 @@
+# 小米电视兼容构建与回归验证
+# 创建日期：2026-10-22
+# 修改日期：2026-10-22
+name: MiTV compatibility
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'app/**'
+      - 'build-logic/**'
+      - 'tools/docker/mitv/**'
+      - 'gradle/**'
+      - 'gradle.properties'
+      - 'settings.gradle.kts'
+      - '.github/workflows/mitv-compatibility.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mitv-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  compatibility:
+    if: github.repository == 'CharlesHYF/izuko-tv'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build isolated toolchain
+        run: docker build --platform linux/amd64 -t izuko-mitv-build:local tools/docker/mitv
+      - name: Test settings, buffering, dependencies and APK
+        run: >-
+          bash tools/docker/mitv/run.sh
+          :app:shared:app-data:testAndroidHostTest --tests '*MiTvSettingsDefaultsTest'
+          :app:shared:video-player:testAndroidHostTest --tests '*ThrottledSourceLoadControlTest'
+          :app:android:auditMiTvDependencies
+          :app:android:assembleDefaultTvDebug
+      - name: Upload build log and APK
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mitv-api23-armeabi-v7a
+          path: artifacts/mitv/
+          retention-days: 7

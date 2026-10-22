@@ -33,6 +33,8 @@ import me.him188.ani.app.data.models.preference.EndpointSelection
 import me.him188.ani.app.data.models.preference.MediaCacheSettings
 import me.him188.ani.app.data.models.preference.MediaPreference
 import me.him188.ani.app.data.models.preference.MediaSelectorSettings
+import me.him188.ani.app.data.models.preference.MiTvSettingsDefaults
+import me.him188.ani.app.platform.currentAniBuildConfig
 import me.him188.ani.app.data.models.preference.OneshotActionConfig
 import me.him188.ani.app.data.models.preference.PikPakConfig
 import me.him188.ani.app.data.models.preference.PlayerKernelConfig
@@ -160,6 +162,7 @@ interface Settings<T> {
 
 class PreferencesRepositoryImpl(
     private val preferences: DataStore<Preferences>,
+    private val lowMemoryDefaults: Boolean = currentAniBuildConfig.miTvCompatibility,
 ) : SettingsRepository {
     private val format get() = DataStoreJson
 
@@ -221,7 +224,7 @@ class PreferencesRepositoryImpl(
         }
     }
 
-    override val danmakuEnabled: Settings<Boolean> = BooleanPreference("danmaku_enabled", default = true)
+    override val danmakuEnabled: Settings<Boolean> = BooleanPreference("danmaku_enabled", default = !lowMemoryDefaults)
     override val tmdbImagesDisabled: Settings<Boolean> = BooleanPreference("tmdb_images_disabled", default = false)
     override val tmdbImageEndpoint: Settings<EndpointSelection> = SerializablePreference(
         "tmdbImageEndpoint",
@@ -259,13 +262,13 @@ class PreferencesRepositoryImpl(
     override val mediaSelectorSettings: Settings<MediaSelectorSettings> = SerializablePreference(
         "mediaSelectorSettings",
         MediaSelectorSettings.serializer(),
-        default = { MediaSelectorSettings.Default },
+        default = { if (lowMemoryDefaults) MiTvSettingsDefaults.selector else MediaSelectorSettings.Default },
     )
     override val defaultMediaPreference: Settings<MediaPreference> =
         SerializablePreference(
             "defaultMediaPreference",
             MediaPreference.serializer(),
-            default = { MediaPreference.PlatformDefault },
+            default = { if (lowMemoryDefaults) MiTvSettingsDefaults.mediaPreference else MediaPreference.PlatformDefault },
         )
     override val profileSettings: Settings<ProfileSettings> = SerializablePreference(
         "profileSettings",
@@ -315,7 +318,7 @@ class PreferencesRepositoryImpl(
     override val themeSettings: Settings<ThemeSettings> = SerializablePreference(
         "themeSettings",
         ThemeSettings.serializer(),
-        default = { ThemeSettings.Default },
+        default = { if (lowMemoryDefaults) MiTvSettingsDefaults.theme else ThemeSettings.Default },
     )
     override val updateSettings: Settings<UpdateSettings> = SerializablePreference(
         "updateSettings",
@@ -325,7 +328,7 @@ class PreferencesRepositoryImpl(
     override val videoScaffoldConfig: Settings<VideoScaffoldConfig> = SerializablePreference(
         "videoScaffoldConfig",
         VideoScaffoldConfig.serializer(),
-        default = { VideoScaffoldConfig.Default },
+        default = { if (lowMemoryDefaults) MiTvSettingsDefaults.video else VideoScaffoldConfig.Default },
     )
     override val playerKernelConfig: Settings<PlayerKernelConfig> = SerializablePreference(
         "playerKernelConfig",
