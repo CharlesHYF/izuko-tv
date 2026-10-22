@@ -125,9 +125,9 @@ kotlin {
 }
 
 if (buildMiTvApp) {
-    kotlin.sourceSets.androidMain.kotlin.srcDir("src/mitvMain/kotlin")
+    kotlin.sourceSets.androidMain { kotlin.srcDir("src/mitvMain/kotlin") }
 } else {
-    kotlin.sourceSets.androidMain.kotlin.srcDir("src/androidOnnxMain/kotlin")
+    kotlin.sourceSets.androidMain { kotlin.srcDir("src/androidOnnxMain/kotlin") }
     kotlin.sourceSets.getByName("androidDeviceTest").kotlin.srcDir("src/androidOnnxDeviceTest/kotlin")
 }
 
