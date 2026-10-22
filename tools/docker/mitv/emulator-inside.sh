@@ -8,6 +8,7 @@ export ANDROID_SERIAL=emulator-5554
 export ANDROID_AVD_HOME=/tmp/mitv-avd
 export PATH="$ANDROID_HOME/emulator:$PATH"
 mkdir -p "$ANDROID_AVD_HOME" /out
+exec > >(tee -a /out/verification.log) 2>&1
 
 if [ ! -r /dev/kvm ] || [ ! -w /dev/kvm ]; then
     printf 'API 23 emulator requires readable and writable /dev/kvm\n' >&2
@@ -50,7 +51,7 @@ done
 apk="$(find /apks -name '*-x86-debug.apk' -print -quit)"
 test -n "$apk"
 "$ANDROID_HOME/build-tools/36.0.0/aapt2" dump badging "$apk" >/out/apk-badging.txt
-grep -qFx "sdkVersion:'23'" /out/apk-badging.txt
+grep -qFx "minSdkVersion:'23'" /out/apk-badging.txt
 grep -qFx "native-code: 'x86'" /out/apk-badging.txt
 adb install -r -g "$apk"
 python3 /source/tools/docker/mitv/emulator-smoke.py
