@@ -36,6 +36,7 @@ out/
 .DS_Store
 
 .env
+/artifacts/
 kls_database.db
 /torrent/anitorrent/*.dylib
 /torrent/anitorrent/*.dll
