@@ -1,5 +1,14 @@
 # Repository Guidelines
 
+## Charles fork 的开发约定
+
+- `origin` 为 `https://github.com/CharlesHYF/izuko-tv`，`upstream` 为 GrahamZen 的原仓库。
+- 直接在 `main` 开发并持续推送；提交作者与提交者使用 Charles <w1400214654@outlook.com>，禁止 AI 联合署名。
+- 开发、Gradle 构建与测试使用独立 Docker 工具链。先执行 `make docker-image`，兼容验证执行 `make verify`；Gradle 在容器内经过 `scripts/gradle-lock.sh`。不在宿主机安装或更换 JDK、Android SDK，不使用宿主机已有的 Gradle 缓存或构建目录。
+- Docker 源码挂载为只读，编译输出位于任务专属卷，导出的 APK、日志及测试报告位于忽略的 `artifacts/mitv`。
+- 目标电视为 MiTV4-ANSM0，API 23、armeabi-v7a、1GB 内存。兼容配置使用 `ani.android.mitv=true`，不支持的依赖与功能应剔除；兼容的高开销功能默认关闭并保留设置开关。
+- 自动化测试通过不代表真机流畅度已经验证；实际硬解、焦点跟手与长播内存需要目标电视验证。设计与验证范围见 `docs/modules/android/mitv-low-memory.md`。
+
 This is the repository for the app. For the server, you can navigate to ../ani-api-server
 
 Read docs/contributing for project guidelines. Before modifying a subsystem, check docs/contributing/code/ for its documentation (e.g. the media framework docs cover terminology, class-level code maps, and the playback flow) and read the relevant docs first.

@@ -8,7 +8,7 @@ ENV ANDROID_HOME=/opt/android-sdk \
     GRADLE_USER_HOME=/cache/gradle
 
 RUN apt-get update -qq \
-    && apt-get install -y --no-install-recommends python3 unzip git binutils libfontconfig1 libxext6 libxi6 libxrender1 libxtst6 \
+    && apt-get install -y --no-install-recommends python3 unzip git rsync binutils libfontconfig1 libxext6 libxi6 libxrender1 libxtst6 \
     && rm -rf /var/lib/apt/lists/*
 
 RUN curl --fail --location --retry 3 https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -o /tmp/android-tools.zip \

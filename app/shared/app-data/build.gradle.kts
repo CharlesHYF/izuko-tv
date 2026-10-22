@@ -125,11 +125,10 @@ kotlin {
 }
 
 if (buildMiTvApp) {
-    kotlin.sourceSets.androidMain {
-        kotlin.exclude("**/AndroidOnnxImageCaptchaRecognizer.kt")
-        kotlin.srcDir("src/mitvMain/kotlin")
-    }
-    kotlin.sourceSets.getByName("androidDeviceTest").kotlin.exclude("**/AndroidOnnxImageCaptchaRecognizerTest.kt")
+    kotlin.sourceSets.androidMain.kotlin.srcDir("src/mitvMain/kotlin")
+} else {
+    kotlin.sourceSets.androidMain.kotlin.srcDir("src/androidOnnxMain/kotlin")
+    kotlin.sourceSets.getByName("androidDeviceTest").kotlin.srcDir("src/androidOnnxDeviceTest/kotlin")
 }
 
 compose.resources {

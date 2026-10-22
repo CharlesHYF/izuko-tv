@@ -83,7 +83,7 @@
 | 物理内存 | 系统报告值 | 识别 1GB 设备 |
 | 应用堆上限 | ActivityManager 报告值 | 制定应用内预算 |
 | 系统低内存标记 | 作为辅助信息 | 不假设所有 1GB 厂商系统都正确设置该标记 |
-| 功能范围 | 用户确认后确定 | 决定默认禁用、按需启用及保留功能 |
+| 功能范围 | 核心观看流程与兼容的可选开关 | 决定默认禁用、按需启用及保留功能 |
 
 ### 返回与策略范围
 
@@ -161,7 +161,7 @@
 | Room runtime Android 2.8.4 | 清单最低 API 23 | 保留 |
 | Compose UI Android 1.12.1 | 清单最低 API 23 | 保留共享界面与状态基础 |
 | JetBrains Adaptive 1.3.0-rc01 的 Android 实现 | adaptive、adaptive-layout、adaptive-navigation 清单最低 API 24 | 兼容构建固定这三个模块到 1.2.0；其 Android 变体使用最低 API 23 的 AndroidX 实现，默认构建保持原版本 |
-| Navigation 2.10 的 Android 实现 | JetBrains 2.10.0-beta01 与 AndroidX 2.10.0 的 common/runtime/compose 清单最低 API 24 | 兼容构建使用 JetBrains 2.9.2 及其对应 AndroidX 2.9.7；AndroidX 2.9.7 清单最低 API 23 |
+| Navigation 2.10 的 Android 实现 | JetBrains 2.10.0-beta01 与 AndroidX 2.10.0 的 common/runtime/compose 清单最低 API 24 | 兼容构建使用 JetBrains 2.9.2 及其对应 AndroidX 2.9.7；AndroidX 2.9.7 清单最低 API 21 |
 | Lifecycle runtime Android 2.11.0 | 清单最低 API 23 | 保留 |
 | SQLite bundled Android 2.6.1 | 清单最低 API 23，含 ARM32 库 | 保留 |
 | DataStore Android 1.2.0 | 清单最低 API 23 | 保留 |
@@ -176,7 +176,7 @@
 
 ## 真机验证信息
 
-1. 当前失败现象是否仅为系统版本导致无法安装，还是已有可安装版本存在卡顿或退出。
+1. 记录安装、启动、浏览和播放的故障现象，并与对应的系统及应用日志关联。
 2. 首次真机验证前确认用户设备访问方式，项目内其他共享测试设备不能替代此电视。
 
 ## 参考依据

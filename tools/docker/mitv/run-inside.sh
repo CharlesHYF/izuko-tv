@@ -7,11 +7,12 @@ set -euo pipefail
 # 固定容器名保证工作卷独占，容器重启时清理其上一次遗留的构建锁。
 rm -rf /workspace/.build.lock
 
-tar -C /source --exclude=.git --exclude=build --exclude=.gradle --exclude=.kotlin \
+rsync -a --delete --exclude=.git --exclude=build --exclude=.gradle --exclude=.kotlin \
     --exclude=local.properties --exclude=.build.lock --exclude=artifacts \
+    --exclude=.mitv-ci-cache \
     --exclude=.env --exclude='*.keystore' --exclude='*.jks' \
-    --exclude=app/desktop/appResources --exclude=.readme \
-    -cf - . | tar -C /workspace -xf -
+    --exclude=/app/desktop/appResources --exclude=.readme \
+    /source/ /workspace/
 
 printf '%s\n' 'sdk.dir=/opt/android-sdk' 'jvm.toolchain.vendor=adoptium' \
     'ani.enable.ios=false' 'ani.enable.firebase=false' > /workspace/local.properties
