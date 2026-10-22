@@ -11,7 +11,7 @@ verify:
 	bash -n tools/docker/mitv/run.sh tools/docker/mitv/run-inside.sh
 	bash test_cases/android/regression/docker-source-sync.sh
 	bash tools/docker/mitv/run.sh \
-		:app:shared:app-data:testAndroidHostTest --tests '*MiTvSettingsDefaultsTest' --tests '*MiTvMediaSelectionTest' \
-		:app:shared:video-player:testAndroidHostTest --tests '*ThrottledSourceLoadControlTest' \
+		:app:shared:app-data:testAndroidHostTest \
+		:app:shared:video-player:testAndroidHostTest \
 		:app:android:auditMiTvDependencies \
 		:app:android:assembleDefaultTvDebug

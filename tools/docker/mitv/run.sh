@@ -17,6 +17,7 @@ if [ -n "${MITV_GRADLE_CACHE_DIR:-}" ]; then
 fi
 
 docker run --rm --platform linux/amd64 --name izuko-mitv-build \
+    --env "MITV_ABIS=${MITV_ABIS:-armeabi-v7a}" \
     --memory "$memory_limit" --memory-swap "$memory_limit" --cpus "$cpu_limit" \
     --mount "type=bind,source=$project_root,target=/source,readonly" \
     --mount "type=bind,source=$output_dir,target=/out" \

@@ -14,7 +14,7 @@ docker build --platform linux/amd64 -t izuko-mitv-build:local tools/docker/mitv
 
 ## 构建与测试
 
-镜像创建后，`make verify` 执行空白检查、Bash 语法检查、兼容设置测试、完整播放器缓冲回归、运行依赖审计和 debug APK 构建。它覆盖本次兼容改造，整仓其他功能的测试仍由原有 Gradle 检查执行。
+镜像创建后，`make verify` 执行空白检查、Bash 语法检查、源码同步回归、app-data 与 video-player 的全部 Android host tests、运行依赖审计和 debug APK 构建。它覆盖本次兼容改造，整仓其他功能的测试仍由原有 Gradle 检查执行。
 
 ```bash
 bash tools/docker/mitv/run.sh :app:android:assembleDefaultTvDebug
@@ -32,6 +32,10 @@ bash tools/docker/mitv/run.sh :app:shared:video-player:testAndroidHostTest --tes
 构建容器默认最多使用 6GiB 内存、3 个 CPU，不使用额外 swap；可用 `MITV_MEMORY` 和 `MITV_CPUS` 调整。这是编译工具的资源限制，不代表目标电视的运行内存。
 
 CI 使用 `MITV_GRADLE_CACHE_DIR` 指定任务专属缓存目录并交给 Actions Cache 保存。该参数可以用于独立的本地任务目录，不应指向宿主机已有的全局 Gradle 缓存。
+
+CI 在 ARM32 构建通过后，单独使用 `MITV_ABIS=x86` 构建模拟器测试包，并在有 KVM 的 Linux runner 内通过 Docker 启动官方 API 23 Android TV 镜像。模拟器配置为 1GB 内存、256MB 堆、720p 和 213dpi，检查安装、启动、控制台读取及前台状态。x86 包只用于模拟器测试，电视安装包仍为 armeabi-v7a。
+
+模拟器日志、内存快照和截图保存在临时 Actions artifact 中；控制台访问令牌在日志导出时屏蔽。这项测试不连接共享真机，不作为电视硬解与流畅度的验收证据。
 
 ## 隔离边界
 

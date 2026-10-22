@@ -23,7 +23,7 @@ fi
 
 set +e
 bash /workspace/scripts/gradle-lock.sh "$@" \
-    -Pani.android.mitv=true -Pani.android.abis=armeabi-v7a \
+    -Pani.android.mitv=true -Pani.android.abis="${MITV_ABIS:-armeabi-v7a}" \
     -Pani.repository=CharlesHYF/izuko-tv \
     -Dorg.gradle.jvmargs='-Xmx3g -Dfile.encoding=UTF-8' \
     -Pkotlin.daemon.jvmargs=-Xmx1536m --max-workers=2 --console=plain 2>&1 | tee /out/build.log
