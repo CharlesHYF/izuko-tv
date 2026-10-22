@@ -102,7 +102,7 @@ android {
             signingConfig = signingConfigs.findByName("release")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
-                *sharedAndroidProguardRules(),
+                *(if (buildMiTvApp) miTvAndroidProguardRules() else sharedAndroidProguardRules()),
             )
         }
         debug {
