@@ -4,6 +4,9 @@
 # 修改日期：2026-10-22
 set -euo pipefail
 
+# 固定容器名保证工作卷独占，容器重启时清理其上一次遗留的构建锁。
+rm -rf /workspace/.build.lock
+
 tar -C /source --exclude=.git --exclude=build --exclude=.gradle --exclude=.kotlin \
     --exclude=local.properties --exclude=.build.lock --exclude=artifacts \
     --exclude=.env --exclude='*.keystore' --exclude='*.jks' \

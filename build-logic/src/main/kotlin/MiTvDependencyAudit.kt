@@ -38,6 +38,7 @@ abstract class MiTvDependencyAudit : DefaultTask() {
         factory.isNamespaceAware = true
         factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true)
         var inspected = 0
+        val issues = mutableListOf<String>()
         for (file in runtimeFiles.files) {
             if (file.extension != "aar") continue
             ZipFile(file).use { archive ->
@@ -48,8 +49,8 @@ abstract class MiTvDependencyAudit : DefaultTask() {
                         val nodes = document.getElementsByTagName("uses-sdk")
                         if (nodes.length > 0) {
                             val sdk = nodes.item(0).attributes.getNamedItemNS(ANDROID_NAMESPACE, "minSdkVersion")?.nodeValue
-                            check(sdk == null || (sdk.toIntOrNull() ?: Int.MAX_VALUE) <= MITV_SDK) {
-                                "${file.name}: minSdk=$sdk exceeds MiTV API $MITV_SDK"
+                            if (sdk != null && (sdk.toIntOrNull() ?: Int.MAX_VALUE) > MITV_SDK) {
+                                issues.add("${file.absolutePath}: minSdk=$sdk exceeds MiTV API $MITV_SDK")
                             }
                         }
                     }
@@ -63,11 +64,12 @@ abstract class MiTvDependencyAudit : DefaultTask() {
                     hasNative = true
                     if (name.startsWith(MITV_ABI_PREFIX)) hasArm32 = true
                 }
-                check(!hasNative || hasArm32) { "${file.name}: missing armeabi-v7a native libraries" }
+                if (hasNative && !hasArm32) issues.add("${file.absolutePath}: missing armeabi-v7a native libraries")
             }
             inspected++
         }
         check(inspected > 0) { "No AAR artifacts were inspected" }
+        check(issues.isEmpty()) { issues.joinToString("\n") }
         logger.lifecycle("MiTV dependency audit passed: $inspected AARs, API $MITV_SDK, armeabi-v7a")
     }
 }
