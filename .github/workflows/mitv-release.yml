@@ -1,4 +1,4 @@
-# 小米电视 API 23 ARM32 优化测试包与成品体积检查
+# 小米电视 API 23 ARM32 优化测试发布与成品体积检查
 name: Publish MiTV API23 APK
 on:
   push:
@@ -70,7 +70,7 @@ jobs:
           python3 tools/docker/mitv/apk-size-report.py \
             --apk release-apk/izuko-tv-mitv-api23-armeabi-v7a-release.apk \
             --baseline debug-baseline/apk/defaultTv/debug/android-default-tv-armeabi-v7a-debug.apk \
-            --output artifacts/release-report
+            --output artifacts/release-report --allow-over-budget
           cat artifacts/release-report/apk-size.md >> "$GITHUB_STEP_SUMMARY"
       - name: Publish optimized APK
         run: |

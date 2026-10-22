@@ -32,10 +32,12 @@ def main() -> None:
     parser.add_argument("--apk", type=Path, required=True)
     parser.add_argument("--baseline", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--allow-over-budget", action="store_true", help="Publish a user-authorized test candidate with the actual budget result")
     arguments = parser.parse_args()
     optimized = inspect(arguments.apk)
     baseline = inspect(arguments.baseline)
-    report = {"release": optimized, "debug_baseline": baseline, "max_dex_mib": MAX_DEX_MIB}
+    within_budget = optimized["dex_bytes"] <= MAX_DEX_MIB * MIB
+    report = {"release": optimized, "debug_baseline": baseline, "max_dex_mib": MAX_DEX_MIB, "within_budget": within_budget}
     arguments.output.mkdir(parents=True, exist_ok=True)
     (arguments.output / "apk-size.json").write_text(json.dumps(report, indent=2), encoding="utf-8")
     text = (
@@ -46,7 +48,7 @@ def main() -> None:
     )
     (arguments.output / "apk-size.md").write_text(text, encoding="utf-8")
     print(text)
-    assert optimized["dex_bytes"] <= MAX_DEX_MIB * MIB, "Release DEX exceeds 40 MiB; do not install yet"
+    assert within_budget or arguments.allow_over_budget, "Release DEX exceeds 40 MiB; do not install yet"
     assert optimized["dex_bytes"] < baseline["dex_bytes"] / 2, "DEX did not shrink by at least half"
     assert not optimized["antlr_generator"], "ANTLR generator class is present in optimized DEX"
 

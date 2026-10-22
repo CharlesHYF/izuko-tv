@@ -47,6 +47,9 @@ fun Project.miTvAndroidProguardRules(): Array<Any> {
         optimizedRules.set(layout.buildDirectory.file("generated/mitv/proguard-rules.pro"))
     }
     val result = mutableListOf<Any>()
+    tasks.matching { it.name.startsWith("minify") && it.name.endsWith("WithR8") }.configureEach {
+        dependsOn(prepared)
+    }
     for (rule in sharedRules) {
         result.add(if (rule.name == "proguard-rules.pro") prepared.flatMap { it.optimizedRules } else rule)
     }
