@@ -18,10 +18,9 @@ import okhttp3.Request
 import okhttp3.Response
 import java.io.IOException
 import java.net.InetAddress
-import java.util.concurrent.CompletableFuture
+import java.util.concurrent.CountDownLatch
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.TimeUnit
-import java.util.concurrent.TimeoutException
 import java.util.concurrent.atomic.AtomicInteger
 
 /**
@@ -57,8 +56,8 @@ object PublicDns {
     fun lookup(hostname: String, gatherMillis: Long = 0): List<InetAddress> {
         val startedAt = System.nanoTime()
         val results = ConcurrentHashMap<String, List<String>>()
-        val firstAnswer = CompletableFuture<Unit>()
-        val allAnswered = CompletableFuture<Unit>()
+        val firstAnswer = CountDownLatch(1)
+        val allAnswered = CountDownLatch(1)
         val pending = AtomicInteger(ENDPOINTS.size)
         val calls = ENDPOINTS.map { endpoint ->
             val request = Request.Builder().url(endpoint + hostname).header("Accept", "application/dns-json").build()
@@ -72,7 +71,7 @@ object PublicDns {
                                 val addresses = if (it.isSuccessful) parseAddresses(it.body?.string().orEmpty()) else emptyList()
                                 if (addresses.isNotEmpty()) {
                                     results[endpoint] = addresses
-                                    firstAnswer.complete(Unit)
+                                    firstAnswer.countDown()
                                 }
                             }
                             done()
@@ -80,19 +79,16 @@ object PublicDns {
 
                         private fun done() {
                             if (pending.decrementAndGet() == 0) {
-                                firstAnswer.complete(Unit)
-                                allAnswered.complete(Unit)
+                                firstAnswer.countDown()
+                                allAnswered.countDown()
                             }
                         }
                     },
                 )
             }
         }
-        try {
-            firstAnswer.get(TIMEOUT_MILLIS + 500, TimeUnit.MILLISECONDS)
-            if (gatherMillis > 0) allAnswered.get(gatherMillis, TimeUnit.MILLISECONDS)
-        } catch (_: TimeoutException) {
-        }
+        firstAnswer.await(TIMEOUT_MILLIS + 500, TimeUnit.MILLISECONDS)
+        if (gatherMillis > 0) allAnswered.await(gatherMillis, TimeUnit.MILLISECONDS)
         calls.forEach { it.cancel() }
         val addresses = results.values.flatten().distinct()
         logger.info {

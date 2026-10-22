@@ -48,7 +48,11 @@ until [ "$(adb shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')" = 1 ]
     sleep 2
 done
 
-apk="$(find /apks -name '*-x86-debug.apk' -print -quit)"
+if [ -n "${MITV_EMULATOR_APK:-}" ]; then
+    apk="/apks/$MITV_EMULATOR_APK"
+else
+    apk="$(find /apks -name '*-x86-debug.apk' -print -quit)"
+fi
 test -n "$apk"
 "$ANDROID_HOME/build-tools/36.0.0/aapt2" dump badging "$apk" >/out/apk-badging.txt
 grep -qFx "minSdkVersion:'23'" /out/apk-badging.txt

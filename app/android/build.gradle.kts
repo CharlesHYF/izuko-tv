@@ -62,7 +62,7 @@ android {
             reset()
             //noinspection ChromeOsAbiSupport
             include(*archs.toTypedArray())
-            isUniversalApk = true // 额外构建一个
+            isUniversalApk = !buildMiTvApp
         }
     }
     signingConfigs {
@@ -98,6 +98,7 @@ android {
     buildTypes {
         release {
             isMinifyEnabled = true
+            if (buildMiTvApp) isShrinkResources = true
             signingConfig = signingConfigs.findByName("release")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),

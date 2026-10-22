@@ -25,8 +25,9 @@ set +e
 bash /workspace/scripts/gradle-lock.sh "$@" \
     -Pani.android.mitv=true -Pani.android.abis="${MITV_ABIS:-armeabi-v7a}" \
     -Pani.repository=CharlesHYF/izuko-tv \
-    -Dorg.gradle.jvmargs='-Xmx3g -Dfile.encoding=UTF-8' \
-    -Pkotlin.daemon.jvmargs=-Xmx1536m --max-workers=2 --console=plain 2>&1 | tee /out/build.log
+    "-Dorg.gradle.jvmargs=-Xmx${MITV_GRADLE_HEAP:-3g} -Dfile.encoding=UTF-8" \
+    "-Pkotlin.daemon.jvmargs=-Xmx${MITV_KOTLIN_HEAP:-1536m}" \
+    "--max-workers=${MITV_WORKERS:-2}" --console=plain 2>&1 | tee /out/build.log
 build_status=${PIPESTATUS[0]}
 set -e
 
@@ -46,5 +47,9 @@ fi
 
 if [ "$build_status" -eq 0 ] && [[ "$*" == *assemble* ]] && [ -d /workspace/app/android/build/outputs/apk ]; then
     cp -R /workspace/app/android/build/outputs/apk /out/
+fi
+if [ -d /workspace/app/android/build/outputs/mapping/defaultTvRelease ]; then
+    mkdir -p /out/r8
+    cp -R /workspace/app/android/build/outputs/mapping/defaultTvRelease/. /out/r8/
 fi
 exit "$build_status"

@@ -4,13 +4,14 @@
 """
 
 import json
+import os
 from pathlib import Path
 import subprocess
 import time
 from urllib.parse import urlsplit
 from urllib.request import Request, urlopen
 
-PACKAGE = "io.github.grahamzen.anime.tv.debug2"
+PACKAGE = os.environ.get("MITV_EMULATOR_PACKAGE", "io.github.grahamzen.anime.tv.debug2")
 ACTIVITY = "me.him188.ani.android.activity.MainActivity"
 SERIAL = "emulator-5554"
 FORWARD_PORT = 17976

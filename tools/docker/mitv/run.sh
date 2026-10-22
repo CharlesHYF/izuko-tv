@@ -18,6 +18,9 @@ fi
 
 docker run --rm --platform linux/amd64 --name izuko-mitv-build \
     --env "MITV_ABIS=${MITV_ABIS:-armeabi-v7a}" \
+    --env "MITV_GRADLE_HEAP=${MITV_GRADLE_HEAP:-3g}" \
+    --env "MITV_KOTLIN_HEAP=${MITV_KOTLIN_HEAP:-1536m}" \
+    --env "MITV_WORKERS=${MITV_WORKERS:-2}" \
     --memory "$memory_limit" --memory-swap "$memory_limit" --cpus "$cpu_limit" \
     --mount "type=bind,source=$project_root,target=/source,readonly" \
     --mount "type=bind,source=$output_dir,target=/out" \
