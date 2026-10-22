@@ -1,0 +1,79 @@
+# 发布已验证的小米电视 API 23 ARM32 安装包
+# 创建日期：2026-10-22
+# 修改日期：2026-10-22
+name: Publish MiTV API23 APK
+
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/mitv-release.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: read
+
+concurrency:
+  group: mitv-api23-release
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    if: github.repository == 'CharlesHYF/izuko-tv'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: CharlesHYF/izuko-tv
+      SOURCE_RUN: '39770675539'
+      RELEASE_TAG: mitv-api23-20261022
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download the verified MiTV artifact
+        run: |
+          gh api "repos/$GH_REPO/actions/runs/$SOURCE_RUN/jobs" \
+            --jq '.jobs[] | select(.name == "compatibility") | .conclusion' | grep -qx success
+          gh api "repos/$GH_REPO/actions/runs/$SOURCE_RUN" --jq .head_sha > source-sha.txt
+          grep -q '^634da7dca' source-sha.txt
+          gh run download "$SOURCE_RUN" --name mitv-api23-armeabi-v7a --dir verified-artifact
+          mkdir -p release-apk
+          mapfile -t apks < <(find verified-artifact -type f -name '*-armeabi-v7a-debug.apk')
+          test "${#apks[@]}" -eq 1
+          cp "${apks[0]}" release-apk/izuko-tv-mitv-api23-armeabi-v7a.apk
+      - name: Build isolated APK inspection tools
+        run: make docker-image
+      - name: Verify the actual APK manifest, ABI and signature
+        run: |
+          docker run --rm --platform linux/amd64 \
+            --mount "type=bind,source=$PWD/release-apk,target=/apk,readonly" \
+            izuko-mitv-build:local /opt/android-sdk/build-tools/36.0.0/aapt2 \
+            dump badging /apk/izuko-tv-mitv-api23-armeabi-v7a.apk > apk-badging.txt
+          grep -qFx "minSdkVersion:'23'" apk-badging.txt
+          grep -qFx "native-code: 'armeabi-v7a'" apk-badging.txt
+          docker run --rm --platform linux/amd64 \
+            --mount "type=bind,source=$PWD/release-apk,target=/apk,readonly" \
+            izuko-mitv-build:local /opt/android-sdk/build-tools/36.0.0/apksigner \
+            verify --min-sdk-version 23 --verbose /apk/izuko-tv-mitv-api23-armeabi-v7a.apk > apk-signature.txt
+          grep -qFx 'Verified using v1 scheme (JAR signing): true' apk-signature.txt
+          echo 'Verified: minSdk=23, armeabi-v7a only, valid API23 signature'
+      - name: Publish the single ARM32 APK
+        run: |
+          apk=release-apk/izuko-tv-mitv-api23-armeabi-v7a.apk
+          checksum="$(sha256sum "$apk" | cut -d ' ' -f 1)"
+          cat > release-notes.txt <<'NOTES'
+          小米电视 Android 6.0 / API 23 兼容测试包。
+
+          - 实际 APK 清单：minSdk 23，仅 armeabi-v7a。
+          - 构建类型：Debug，已验证 Android 6.0 所需的 v1 签名。
+          - 2607 项 host 测试通过，4 项为原有跳过项。
+          - 真机硬解和流畅度待电视验证。
+          NOTES
+          printf '\nSHA-256: `%s`\n' "$checksum" >> release-notes.txt
+          source_sha="$(cat source-sha.txt)"
+          if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
+            gh release upload "$RELEASE_TAG" "$apk" --clobber
+          else
+            gh release create "$RELEASE_TAG" "$apk" --target "$source_sha" \
+              --title 'MiTV API 23 ARM32 测试版' --prerelease --notes-file release-notes.txt
+          fi
+          gh release view "$RELEASE_TAG" --json url --jq .url >> "$GITHUB_STEP_SUMMARY"
