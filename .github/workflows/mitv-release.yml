@@ -1,4 +1,4 @@
-# 小米电视 API 23 ARM32 优化测试包
+# 小米电视 API 23 ARM32 优化测试包与成品检查
 name: Publish MiTV API23 APK
 on:
   push:

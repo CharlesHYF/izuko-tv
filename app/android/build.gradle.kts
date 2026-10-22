@@ -62,7 +62,7 @@ android {
             reset()
             //noinspection ChromeOsAbiSupport
             include(*archs.toTypedArray())
-            isUniversalApk = !buildMiTvApp
+            isUniversalApk = true // 与 ndk.abiFilters 配合，发布流程只选取目标 ABI 的 APK。
         }
     }
     signingConfigs {
