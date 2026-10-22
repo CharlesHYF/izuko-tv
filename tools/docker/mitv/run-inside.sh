@@ -45,6 +45,11 @@ if [[ "$*" == *testAndroidHostTest* ]]; then
     done
 fi
 
+if [[ "$*" == *testAndroidHostTest* ]] && [ -d /workspace/utils/ktor-client/build/test-results/testAndroidHostTest ]; then
+    mkdir -p /out/tests/ktor-client
+    cp /workspace/utils/ktor-client/build/test-results/testAndroidHostTest/*.xml /out/tests/ktor-client/
+fi
+
 if [ "$build_status" -eq 0 ] && [[ "$*" == *assemble* ]] && [ -d /workspace/app/android/build/outputs/apk ]; then
     cp -R /workspace/app/android/build/outputs/apk /out/
 fi

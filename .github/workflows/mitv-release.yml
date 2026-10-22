@@ -10,7 +10,7 @@ permissions:
   actions: read
 concurrency:
   group: mitv-api23-release
-  cancel-in-progress: false
+  cancel-in-progress: true
 jobs:
   publish:
     if: github.repository == 'CharlesHYF/izuko-tv'
@@ -68,6 +68,9 @@ jobs:
             --apk release-apk/izuko-tv-mitv-api23-armeabi-v7a-release.apk \
             --baseline debug-baseline/apk/defaultTv/debug/android-default-tv-armeabi-v7a-debug.apk \
             --output artifacts/release-report
+          python3 tools/docker/mitv/apk-api23-report.py \
+            --apk release-apk/izuko-tv-mitv-api23-armeabi-v7a-release.apk \
+            --output artifacts/release-report/api23-dex-references.json
           cat artifacts/release-report/apk-size.md >> "$GITHUB_STEP_SUMMARY"
       - name: Publish optimized APK
         run: |

@@ -189,3 +189,12 @@
 - `gradle.properties`、`gradle/libs.versions.toml`、`build-logic/src/main/kotlin/properties.kt`。
 - `app/shared/ui-foundation/src/commonMain/kotlin/ui/foundation/AniImageMemoryCache.kt`。
 - `app/shared/video-player/src/androidMain/kotlin/media/ThrottledSourceLoadControl.kt`。
+
+## 优化测试包发布约束
+
+- `defaultTvRelease` 使用 R8 与资源裁剪，兼容包只输出所选 ABI，发布资产仅包含 armeabi-v7a APK。
+- 发布检查实际清单的 minSdk 23、ARM32 与非 debuggable 状态，并验证 Android 6.0 所需的 v1 签名。
+- 安装前以 APK 内 DEX 的未压缩长度统计安装负担：DEX 合计不超过 40 MiB，且小于 Debug 基线的一半；具体数据随 Release 发布。
+- ANTLR Kotlin runtime 用于 BBCode 运行时解析，属于运行依赖；构建流程检查依赖树和优化 DEX 中的 ANTLR 生成器类，不能将解析器所需 runtime 设为 compileOnly。
+- 测试包使用构建任务专属测试密钥。密钥不提交、不上传、不进入缓存；不同构建的测试包不承诺可覆盖安装。
+- API 23 DNS 并行查询通过 CountDownLatch 等待首个结果及收集窗口，避免调用系统缺失的 CompletableFuture。
