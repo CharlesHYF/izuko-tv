@@ -20,6 +20,8 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import androidx.media3.exoplayer.upstream.Allocation
+import me.him188.ani.app.videoplayer.player.MiTvPlaybackLimits
 import androidx.annotation.OptIn as AndroidxOptIn
 
 /**
@@ -28,6 +30,25 @@ import androidx.annotation.OptIn as AndroidxOptIn
  */
 @AndroidxOptIn(UnstableApi::class)
 class ThrottledSourceLoadControlTest {
+    @Test
+    fun `low memory size limit allows playback without waiting for impossible duration`() {
+        val control = ThrottledSourceLoadControl(lowMemory = true)
+        control.throttled = true
+        control.onPrepared(PlayerId.UNSET)
+        val allocator = control.getAllocator(PlayerId.UNSET)
+        val allocations = mutableListOf<Allocation>()
+        try {
+            while (allocator.totalBytesAllocated < MiTvPlaybackLimits.BUFFER_BYTES) {
+                allocations.add(allocator.allocate())
+            }
+            assertFalse(control.shouldContinueLoading(parameters(0.5)))
+            assertTrue(control.shouldStartPlayback(parameters(0.5, rebuffering = true)))
+        } finally {
+            for (allocation in allocations) allocator.release(allocation)
+            control.onReleased(PlayerId.UNSET)
+        }
+    }
+
     @Test
     fun `low memory playback retains no backwards buffer`() {
         assertEquals(0L, ThrottledSourceLoadControl(lowMemory = true).getBackBufferDurationUs(PlayerId.UNSET))

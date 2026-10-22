@@ -1,6 +1,11 @@
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
+import org.gradle.api.artifacts.component.ModuleComponentIdentifier
+import org.gradle.api.artifacts.result.UnresolvedDependencyResult
+import org.gradle.api.artifacts.type.ArtifactTypeDefinition
 import org.gradle.api.file.ConfigurableFileCollection
+import org.gradle.api.provider.ListProperty
+import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
@@ -23,8 +28,12 @@ abstract class MiTvDependencyAudit : DefaultTask() {
     @get:PathSensitive(PathSensitivity.NONE)
     abstract val runtimeFiles: ConfigurableFileCollection
 
+    @get:Input
+    abstract val dependencyFailures: ListProperty<String>
+
     @TaskAction
     fun audit() {
+        check(dependencyFailures.get().isEmpty()) { "Unresolved dependencies: ${dependencyFailures.get()}" }
         val factory = DocumentBuilderFactory.newInstance()
         factory.isNamespaceAware = true
         factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true)
@@ -66,10 +75,24 @@ abstract class MiTvDependencyAudit : DefaultTask() {
 /** 注册兼容包运行依赖审计任务。 */
 fun Project.registerMiTvDependencyAudit() {
     val enabled = buildMiTvApp
+    val runtime = configurations.named("defaultTvReleaseRuntimeClasspath")
     tasks.register<MiTvDependencyAudit>("auditMiTvDependencies") {
         group = "verification"
         description = "Checks the MiTV release dependency SDK and native ABI requirements"
-        runtimeFiles.from(configurations.named("defaultTvReleaseRuntimeClasspath"))
+        runtimeFiles.from(runtime.map { configuration ->
+            configuration.incoming.artifactView {
+                componentFilter { component -> component is ModuleComponentIdentifier }
+                attributes.attribute(ArtifactTypeDefinition.ARTIFACT_TYPE_ATTRIBUTE, "aar")
+                isLenient = true
+            }.files
+        })
+        dependencyFailures.set(runtime.map { configuration ->
+            val failures = mutableListOf<String>()
+            for (dependency in configuration.incoming.resolutionResult.allDependencies) {
+                if (dependency is UnresolvedDependencyResult) failures.add(dependency.attempted.displayName)
+            }
+            failures
+        })
         onlyIf { enabled }
     }
 }

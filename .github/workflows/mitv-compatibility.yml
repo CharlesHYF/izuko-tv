@@ -39,6 +39,22 @@ jobs:
           :app:shared:video-player:testAndroidHostTest --tests '*ThrottledSourceLoadControlTest'
           :app:android:auditMiTvDependencies
           :app:android:assembleDefaultTvDebug
+      - name: Annotate validation failures
+        if: failure()
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          log = Path('artifacts/mitv/build.log')
+          if log.exists():
+              count = 0
+              for line in log.read_text(errors='replace').splitlines():
+                  if line.startswith(('e:', 'Could not ', 'Execution failed', '> Could not ', '* What went wrong:')):
+                      message = line.replace('%', '%25').replace('\r', '%0D')
+                      print(f'::error title=MiTV validation::{message}')
+                      count += 1
+                      if count >= 15:
+                          break
+          PY
       - name: Upload build log and APK
         if: always()
         uses: actions/upload-artifact@v4
