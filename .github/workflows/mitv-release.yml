@@ -19,7 +19,7 @@ jobs:
     env:
       GH_TOKEN: ${{ github.token }}
       GH_REPO: CharlesHYF/izuko-tv
-      RELEASE_TAG: mitv-api23-r8-20261023
+      RELEASE_TAG: mitv-api23-r8-20261023.2
       MITV_GRADLE_CACHE_DIR: ${{ github.workspace }}/.mitv-ci-cache
       MITV_OUTPUT_DIR: ${{ github.workspace }}/artifacts/mitv-optimized
       MITV_GRADLE_HEAP: 4g
