@@ -26,7 +26,7 @@ import android.graphics.RectF
 import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.InsetDrawable
 import android.os.Build
-import android.util.FloatProperty
+import android.util.Property
 import android.view.Gravity
 import android.view.KeyEvent
 import android.view.View
@@ -565,8 +565,8 @@ private fun View.rectInWindow(): Rect {
 private const val TV_NATIVE_MONOGRAM_VIEW_TYPE = 0x7a12
 
 /** 圆头像格的聚焦程度属性 (Property 版, 省掉 ObjectAnimator 按名字反射). */
-private val TV_NATIVE_MONOGRAM_FOCUS_PROGRESS = object : FloatProperty<TvNativeMonogramCardView>("focusProgress") {
-    override fun setValue(view: TvNativeMonogramCardView, value: Float) {
+private val TV_NATIVE_MONOGRAM_FOCUS_PROGRESS = object : Property<TvNativeMonogramCardView, Float>(Float::class.javaObjectType, "focusProgress") {
+    override fun set(view: TvNativeMonogramCardView, value: Float) {
         view.focusProgress = value
     }
 

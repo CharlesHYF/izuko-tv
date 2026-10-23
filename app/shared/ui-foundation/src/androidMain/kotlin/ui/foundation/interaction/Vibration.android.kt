@@ -30,6 +30,8 @@ import me.him188.ani.app.platform.Context
 
 @RequiresPermission(android.Manifest.permission.VIBRATE)
 actual fun Context.vibrateIfSupported(strength: VibrationStrength) {
+    // 预置振动效果从 API 29 起才有; 更低的系统不读 VibrationEffect 类型的属性, 免得解析不存在的类
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return
     val effect = strength.toEffect() ?: return
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
         getSystemService<VibratorManager>()?.vibrate(CombinedVibration.createParallel(effect))

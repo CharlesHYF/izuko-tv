@@ -47,3 +47,5 @@ Docker 工具链构建通过。源码同步回归在旧脚本上失败，在当�
 - DEX 扫描读取类型表，不将日志文本中的类名当成系统类引用；阻止 CompletableFuture 平台类型残留，其他 Java API 类型列入报告。存在类型引用不等于路径可达，报告不能替代运行测试。
 - MiTV4-ANSM0 实机打开播放页时，画中画控制器在构造阶段调用 API 24 的 `Activity.isInPictureInPictureMode` 导致 `NoSuchMethodError`。画中画判定在 API 26 以下直接返回不支持，构造阶段仅在支持画中画时读取小窗状态。依赖审计只检查 AAR 声明的 minSdk，DEX 扫描只检查 Java API 类型，均无法发现源码直接调用的高版本系统方法；修复后的播放页需在目标电视复测。
 - API 23 系统信任库缺少 ISRG 根证书导致 Let's Encrypt HTTPS 握手失败；MiTV 兼容包在 API 25 以下为 Ktor、图片、DoH、播放与 ECH 客户端补充官方 ISRG Root X1/X2 并保留系统优先校验，需在目标电视复测。
+- API 23 上 `ChineseConverter` 读取 `android.icu.text.Transliterator` 类型的属性时解析该类失败 (`NoClassDefFoundError`)，所有在线数据源搜索都失败；Transliterator 自 API 29 起才公开，android.icu 引用隔离到仅 API 29 起调用的路径，更低系统上标题不做繁简转换，繁体标题的数据源匹配会少一些，需在目标电视复测自动选择数据源。
+- 内置第三方订阅中的 hanime 数据源在订阅导入时屏蔽，已装实例在下一次订阅更新时移除。

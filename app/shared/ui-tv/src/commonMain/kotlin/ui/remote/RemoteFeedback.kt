@@ -114,7 +114,7 @@ internal object RemoteFeedback {
         val get = request.method == "GET" || request.method == "HEAD"
         if (get && request.path.startsWith("$PHOTO_PATH/")) {
             val file = FeedbackPhotoStore.file(request.path.removePrefix("$PHOTO_PATH/")) ?: return LanHttpResponse.status(404, "Not Found")
-            val type = when (FeedbackPhotoStore.typeOf(file.inputStream().use { it.readNBytes(12) })) {
+            val type = when (FeedbackPhotoStore.typeOf(file.inputStream().use { input -> ByteArray(12).let { it.copyOf(input.read(it).coerceAtLeast(0)) } })) {
                 "png" -> "image/png"
                 "webp" -> "image/webp"
                 else -> "image/jpeg"

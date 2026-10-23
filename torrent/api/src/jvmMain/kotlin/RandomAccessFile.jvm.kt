@@ -64,5 +64,8 @@ private fun createSparse(path: Path) {
     try {
         Files.newByteChannel(path, StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE, StandardOpenOption.SPARSE).close()
     } catch (_: FileAlreadyExistsException) {
+    } catch (_: LinkageError) {
+        // Android 7.0 (API 24) 以下没有 SeekableByteChannel; Android 的文件系统本身就是稀疏的, 直接建空文件
+        path.toFile().createNewFile()
     }
 }

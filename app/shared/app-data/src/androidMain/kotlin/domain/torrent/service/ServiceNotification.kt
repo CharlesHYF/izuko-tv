@@ -174,7 +174,14 @@ class ServiceNotification(
                 PendingIntent.FLAG_IMMUTABLE,
             )
 
-        return Notification.Builder(context, notificationChannel.id).apply {
+        // 通知渠道与带渠道的 Builder 从 API 26 起才有; 更低的系统不读 NotificationChannel 类型的属性
+        val builder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            Notification.Builder(context, notificationChannel.id)
+        } else {
+            @Suppress("DEPRECATION")
+            Notification.Builder(context)
+        }
+        return builder.apply {
             setContentTitle(
                 when (displayStrategy) {
                     is NotificationDisplayStrategy.Idle -> appearance.titleIdle
@@ -191,7 +198,7 @@ class ServiceNotification(
             )
             setSmallIcon(notificationAppearance.icon)
             setContentIntent(openActivityAction)
-            setActions(
+            addAction(
                 Notification.Action.Builder(
                     notificationAppearance.icon,
                     notificationAppearance.stopActionText,

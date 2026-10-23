@@ -10,12 +10,10 @@
 package me.him188.ani.app.domain.mediasource
 
 /**
- * 单元测试跑在桩 `android.jar` 上, `android.icu` 的方法一律抛 "not mocked",
- * 因此取不到时退化为不转换 (与 desktop / iOS 的 actual 一致); 真机上照常做繁简转换.
+ * 取不到 ICU 转写器时退化为不转换 (与 desktop / iOS 的 actual 一致): API 29 以下没有公开的 `Transliterator`,
+ * 单元测试的桩 `android.jar` 上 `android.icu` 的方法一律抛 "not mocked". 见 [createTraditionalToSimplified].
  */
-private val transliterator by lazy {
-    runCatching { android.icu.text.Transliterator.getInstance("Traditional-Simplified") }.getOrNull()
-}
+private val transliterator by lazy { createTraditionalToSimplified() }
 
 /**
  * 转换过的结果. 同一批名字 (条目别名、页名、网盘目录名) 在每批搜索结果的筛选里都要再转一遍, 而 ICU 转写很慢.
@@ -30,7 +28,7 @@ internal actual fun String.toSimplifiedChinese(): String {
     // 繁转简只改中日韩字符, 没有的原样返回
     if (none { it.code >= 0x2E80 }) return this
     synchronized(converted) { converted[this] }?.let { return it }
-    val result = transliterator?.transliterate(this) ?: this
+    val result = transliterator?.invoke(this) ?: this
     synchronized(converted) { converted[this] = result }
     return result
 }

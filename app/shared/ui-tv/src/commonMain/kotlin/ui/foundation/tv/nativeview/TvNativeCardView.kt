@@ -34,7 +34,7 @@ import android.text.SpannableString
 import android.text.Spanned
 import android.text.TextUtils
 import android.text.style.LineHeightSpan
-import android.util.FloatProperty
+import android.util.Property
 import android.view.InputDevice
 import android.view.KeyEvent
 import android.view.MotionEvent
@@ -931,8 +931,8 @@ private class TvNativeLineHeightSpan(val heightPx: Int) : LineHeightSpan {
 }
 
 /** 卡片的聚焦程度属性 (Property 版, 省掉 ObjectAnimator 按名字反射). */
-private val TV_NATIVE_FOCUS_PROGRESS = object : FloatProperty<TvNativeCardView>("focusProgress") {
-    override fun setValue(view: TvNativeCardView, value: Float) {
+private val TV_NATIVE_FOCUS_PROGRESS = object : Property<TvNativeCardView, Float>(Float::class.javaObjectType, "focusProgress") {
+    override fun set(view: TvNativeCardView, value: Float) {
         view.focusProgress = value
     }
 
