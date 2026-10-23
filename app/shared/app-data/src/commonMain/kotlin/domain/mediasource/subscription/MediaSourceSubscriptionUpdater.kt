@@ -209,7 +209,7 @@ class MediaSourceSubscriptionUpdater(
             runCatching {
                 NewArgument(it, codecManager.decode(it))
             }.getOrNull()
-        }
+        }.filterNot { BlockedSubscriptionSources.isBlocked(it.name) }
 
         var count: Int? = null
         // Serialize source reconciliation with subscription availability changes. Network I/O stays outside the transaction.
