@@ -23,7 +23,8 @@ jobs:
       MITV_GRADLE_CACHE_DIR: ${{ github.workspace }}/.mitv-ci-cache
       MITV_OUTPUT_DIR: ${{ github.workspace }}/artifacts/mitv-optimized
       MITV_GRADLE_HEAP: 4g
-      MITV_KOTLIN_HEAP: 1g
+      MITV_KOTLIN_HEAP: 2g
+      MITV_MEMORY: 8g
       MITV_WORKERS: '1'
     steps:
       - uses: actions/checkout@v4
