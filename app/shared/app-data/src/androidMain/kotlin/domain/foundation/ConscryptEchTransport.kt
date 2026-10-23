@@ -15,6 +15,7 @@ import io.ktor.client.engine.HttpClientEngineConfig
 import io.ktor.client.engine.okhttp.OkHttpConfig
 import kotlinx.coroutines.runBlocking
 import me.him188.ani.app.platform.currentAniBuildConfig
+import me.him188.ani.utils.ktor.miTvTrustManager
 import me.him188.ani.utils.logging.info
 import me.him188.ani.utils.logging.logger
 import me.him188.ani.utils.logging.warn
@@ -83,7 +84,7 @@ class ConscryptEchTransport(
             check(Conscrypt.isAvailable()) { "Conscrypt native library is unavailable" }
             val trustManager = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm())
                 .apply { init(null as KeyStore?) }
-                .trustManagers.filterIsInstance<X509TrustManager>().first()
+                .trustManagers.filterIsInstance<X509TrustManager>().first().let(::miTvTrustManager)
             val conscrypt = SSLContext.getInstance("TLS", Conscrypt.newProvider())
                 .apply { init(null, arrayOf(EchRequiredTrustManager(trustManager)), null) }
                 .socketFactory

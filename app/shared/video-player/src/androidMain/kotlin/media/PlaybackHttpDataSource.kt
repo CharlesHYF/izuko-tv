@@ -14,6 +14,7 @@ import androidx.media3.common.util.UnstableApi
 import androidx.media3.datasource.DefaultHttpDataSource
 import androidx.media3.datasource.HttpDataSource
 import androidx.media3.datasource.okhttp.OkHttpDataSource
+import me.him188.ani.utils.ktor.withMiTvTls
 import okhttp3.Authenticator
 import okhttp3.OkHttpClient
 import java.net.InetSocketAddress
@@ -84,7 +85,7 @@ internal fun createPlaybackHttpDataSourceFactory(
 ): HttpDataSource.Factory {
     logger.info { "Creating playback data source, proxy=" + (proxyConfig?.proxy?.toString() ?: "direct") }
     val client = clients.getOrPut(proxyConfig to connectTimeoutMillis) {
-        OkHttpClient.Builder()
+        OkHttpClient.Builder().withMiTvTls()
             .connectTimeout(connectTimeoutMillis.toLong(), TimeUnit.MILLISECONDS)
             .readTimeout(DefaultHttpDataSource.DEFAULT_READ_TIMEOUT_MILLIS.toLong(), TimeUnit.MILLISECONDS)
             .dns(FallbackDns.Default)

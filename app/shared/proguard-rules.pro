@@ -91,3 +91,8 @@
 # Conscrypt 的原生库按类名与成员名回调 Java
 -keep class org.conscrypt.** { *; }
 -dontwarn org.conscrypt.**
+
+# Android 与 OkHttp 按签名反射调用组合信任管理器的主机名校验入口。
+-keepclassmembers class me.him188.ani.utils.ktor.MiTvTrustManager {
+    public java.util.List checkServerTrusted(java.security.cert.X509Certificate[], java.lang.String, java.lang.String);
+}

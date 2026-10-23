@@ -13,7 +13,6 @@ import io.ktor.client.HttpClientConfig
 import io.ktor.client.call.body
 import io.ktor.client.engine.HttpClientEngineConfig
 import io.ktor.client.engine.HttpClientEngineFactory
-import io.ktor.client.engine.okhttp.OkHttp
 import io.ktor.client.engine.okhttp.OkHttpConfig
 import io.ktor.client.statement.HttpResponse
 import io.ktor.http.ContentType
@@ -30,7 +29,7 @@ import me.him188.ani.shaded.jsoup.nodes.Document
 import okhttp3.Dispatcher
 import kotlin.math.max
 
-actual fun getPlatformKtorEngine(): HttpClientEngineFactory<*> = OkHttp
+actual fun getPlatformKtorEngine(): HttpClientEngineFactory<*> = MiTvKtorEngine
 
 /**
  * OkHttp 在 HTTP/1.x 下每个并发请求各占一条连接, 连接数只受 [engineMaxRequestsPerHost] 间接限制;

@@ -28,7 +28,6 @@ import androidx.media3.common.util.UnstableApi
 import androidx.media3.common.util.Util
 import androidx.media3.datasource.DataSource
 import androidx.media3.datasource.DataSpec
-import androidx.media3.datasource.DefaultDataSource
 import androidx.media3.datasource.TransferListener
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.ExoTimeoutException
@@ -868,7 +867,7 @@ private class LibassMediaSourcePipeline(
 
             is SeekableInputMediaData -> {
                 if (data.uri.startsWith("file://")) {
-                    BufferedReadDataSource.Factory(DefaultDataSource.Factory(context))
+                    BufferedReadDataSource.Factory(createMiTvDefaultDataSourceFactory(context))
                 } else {
                     // ExoPlayerMediampPlayer.openImpl opened the session's SeekableInput before
                     // invoking this interceptor and registered it as a session resource (the
@@ -883,7 +882,7 @@ private class LibassMediaSourcePipeline(
                         primaryDataSourceFactory = DataSource.Factory {
                             VideoDataDataSource(tracking.source, primaryInput)
                         },
-                        fallbackDataSourceFactory = DefaultDataSource.Factory(context),
+                        fallbackDataSourceFactory = createMiTvDefaultDataSourceFactory(context),
                     )
                 }
             }

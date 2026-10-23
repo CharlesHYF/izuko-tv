@@ -14,6 +14,7 @@ import androidx.media3.common.util.UnstableApi
 import androidx.media3.datasource.HttpDataSource
 import androidx.media3.datasource.okhttp.OkHttpDataSource
 import me.him188.ani.utils.ktor.PublicDns
+import me.him188.ani.utils.ktor.miTvTrustManager
 import me.him188.ani.utils.logging.info
 import me.him188.ani.utils.logging.logger
 import me.him188.ani.utils.logging.warn
@@ -70,11 +71,11 @@ internal object RangeHttpClients {
     private val clients = ConcurrentHashMap<PlaybackProxyConfig, OkHttpClient>()
     private val direct: OkHttpClient by lazy { build(null) }
 
-    /** 系统默认的证书校验 (同 OkHttp 默认用的那个), 套接字工厂换成握手限时的. */
+    /** 系统优先的证书校验与兼容构建根证书, 套接字工厂换成握手限时的. */
     private val trustManager: X509TrustManager by lazy {
         TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm()).run {
             init(null as KeyStore?)
-            trustManagers.filterIsInstance<X509TrustManager>().first()
+            miTvTrustManager(trustManagers.filterIsInstance<X509TrustManager>().first())
         }
     }
     private val sslSocketFactory: SSLSocketFactory by lazy {

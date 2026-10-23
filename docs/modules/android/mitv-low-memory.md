@@ -71,6 +71,27 @@
 - ABI 或解码器不支持的媒体给出可理解的错误，并允许选择其他可用资源。
 - 只有在对应系统及 ABI 上通过安装、启动和播放验证后，才标记该组合受支持。
 
+### HTTPS 根证书兼容
+
+- 运行系统低于 API 25 时，客户端使用系统优先的组合 X509TrustManager，系统证书校验失败后再使用仅包含官方 ISRG Root X1/X2 的 KeyStore 校验。正式包 minSdk 为 27，7.1 兼容包 minSdk 为 25，只有 MiTV 兼容包的 minSdk 低于 25，因此该运行时判断只影响 MiTV 包。
+- 官方 PEM 以原文常量保存在 `utils/ktor-client/src/androidMain/kotlin/MiTvRootCertificates.kt`，不修改主机名校验；双库拒绝时抛出 CertificateException，并保留两条失败原因。
+- Android 与 OkHttp 的证书链清理通过组合管理器的三参数 `checkServerTrusted` 调用 X509TrustManagerExtensions；ECH 继续保留要求加密域名的策略。该反射入口受共享 R8 规则保护。
+- API 25 及以上保持系统默认 TLS 配置；WebView 使用自身网络栈，不在此兼容层范围内。
+
+| Android 网络入口 | 文件与行号 | 接入方式 |
+| --- | --- | --- |
+| Ktor 共享引擎（实际为 OkHttp） | `utils/ktor-client/src/jvmMain/kotlin/DefaultClient.jvm.kt:32` | MiTvKtorEngine 为每个客户端配置平台 TLS 钩子，覆盖默认客户端、登录、开发构建查询、网盘与 SDK 的共享客户端 |
+| 公共 DoH | `utils/ktor-client/src/jvmMain/kotlin/PublicDns.kt:45` | withMiTvTls |
+| 普通播放、HLS、外挂字幕 | `app/shared/video-player/src/androidMain/kotlin/media/PlaybackHttpDataSource.kt:88` | withMiTvTls |
+| 分块下载与字体附件 | `app/shared/video-player/src/androidMain/kotlin/media/RangeHttpClient.kt:78` | 自建握手限时套接字与 OkHttp 证书链清理共用组合管理器 |
+| Conscrypt ECH | `app/shared/app-data/src/androidMain/kotlin/domain/foundation/ConscryptEchTransport.kt:87` | EchRequiredTrustManager 委托组合管理器，保留带主机名的校验入口 |
+| Media3 文件与 SeekableInput 默认回退 | `app/shared/video-player/src/androidMain/kotlin/media/LibassExoPlayerMediampPlayer.kt:870`、`:885` | createMiTvDefaultDataSourceFactory 的 HTTP 上游使用兼容 OkHttp |
+| 图片（Sketch） | `app/shared/ui-foundation/src/commonMain/kotlin/ui/foundation/AsyncImage.kt:648`、`ScopedHttpClientHttpStack.kt:86` | 经共享 Ktor 接入；当前运行图片库没有 Coil 客户端 |
+| 电视迁移 HttpURLConnection | `app/shared/ui-tv/src/commonMain/kotlin/ui/remote/RemoteDeviceMigration.kt:405` | 不接入：地址在 :352 固定构造为局域网 HTTP，且关闭跳转 |
+| 独立安装助手 HttpURLConnection | `app/installer/src/main/kotlin/Http.kt:27` | 不接入：独立 APK，不属于 MiTV 兼容应用包 |
+
+`app-data` 的 Android host tests 使用 JDK keytool 在临时目录生成测试根与叶子证书，覆盖系统拒绝后的补充校验、双库拒绝、系统优先、签发者合并、官方 PEM 指纹与启用条件。测试由 `make verify` 的既有 `:app:shared:app-data:testAndroidHostTest` 任务收集。API 23 真机的 TMDB 图片、数据源 HTTPS、HLS、字幕与 ECH 仍需目标电视复测。
+
 ## 低内存运行策略
 
 ### 功能描述

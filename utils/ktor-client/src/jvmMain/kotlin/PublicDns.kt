@@ -42,7 +42,7 @@ object PublicDns {
     private val ADDRESS = Regex(""""data"\s*:\s*"(\d{1,3}(?:\.\d{1,3}){3})"""")
 
     private val client: OkHttpClient by lazy {
-        OkHttpClient.Builder()
+        OkHttpClient.Builder().withMiTvTls()
             .connectTimeout(TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)
             .readTimeout(TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)
             .callTimeout(TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)
