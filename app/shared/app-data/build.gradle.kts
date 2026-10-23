@@ -73,6 +73,8 @@ kotlin {
         implementation(libs.atomicfu)
         implementation(libs.ktor.network) // HLS 本地代理 (iOS)
     }
+    // 仓库发布的订阅文件作为测试资源, 测试与发布共用同一份 JSON
+    sourceSets.commonTest { resources.srcDir(rootProject.file("subscriptions")) }
     sourceSets.commonTest.dependencies {
         implementation(projects.utils.uiTesting)
         implementation(projects.utils.androidxLifecycleRuntimeTesting)

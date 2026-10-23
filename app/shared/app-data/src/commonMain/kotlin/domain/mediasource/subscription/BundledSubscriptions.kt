@@ -27,7 +27,7 @@ import me.him188.ani.utils.platform.Uuid
 object BundledSubscriptions {
     private const val SOURCES_URL = "https://raw.githubusercontent.com/weixianweide/sources/main/subscription.json"
 
-    val urls: List<String> = listOf(SOURCES_URL)
+    val urls: List<String> = listOf(SOURCES_URL, "https://raw.githubusercontent.com/CharlesHYF/izuko-tv/main/subscriptions/kazumi-tv.json")
 
     /** 上游默认带、这里不再默认给的订阅: Animeko 的在线源订阅 (要的话用户自己加). 挑过的几个已放进 [SOURCES_URL]. */
     val retiredUrls: List<String> = listOf("https://sub.creamycake.org/v1/css1.json")

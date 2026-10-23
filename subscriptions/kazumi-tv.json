@@ -1,0 +1,80 @@
+{
+  "exportedMediaSourceDataList": {
+    "mediaSources": [
+      {
+        "factoryId": "web-selector",
+        "version": 2,
+        "arguments": {
+          "name": "7sefun",
+          "description": "来自 KazumiTV 随包规则，按站点页面转换为 CSS 选择器；播放依赖 WebView 嗅探。",
+          "iconUrl": "",
+          "searchConfig": {
+            "searchUrl": "https://www.7sefun.top/vodsearch/-------------.html?wd={keyword}",
+            "rawBaseUrl": "https://www.7sefun.top/",
+            "subjectFormatId": "indexed",
+            "selectorSubjectFormatIndexed": {
+              "selectNames": ".videos > .video > .video-by",
+              "selectLinks": ".videos > .video > a.video-wrapper"
+            },
+            "channelFormatId": "index-grouped",
+            "selectorChannelFormatFlattened": {
+              "selectChannelNames": ".chat-header > .chat-stream-bfq",
+              "matchChannelName": "",
+              "selectEpisodeLists": ".vod-play-list-container",
+              "selectEpisodesFromList": "a[href]",
+              "selectEpisodeLinksFromList": "",
+              "matchEpisodeSortFromName": "(?:第\\s*)?(?<ep>\\d+(?:\\.\\d+)?)(?:\\s*[话集])?"
+            },
+            "matchVideo": {
+              "enableNestedUrl": true,
+              "matchNestedUrl": "^https?://www\\.lmm85\\.com/play/",
+              "matchVideoUrl": "(?i)^https?://[^\\s\"<>]+\\.(?:mp4|mkv|m3u8)(?:[?#][^\\s\"<>]*)?$",
+              "cookies": "",
+              "addHeadersToVideo": {
+                "referer": "",
+                "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3"
+              }
+            }
+          }
+        }
+      },
+      {
+        "factoryId": "web-selector",
+        "version": 2,
+        "arguments": {
+          "name": "DM84",
+          "description": "来自 KazumiTV 随包规则，按站点页面转换为 CSS 选择器；播放依赖 WebView 嗅探。",
+          "iconUrl": "",
+          "searchConfig": {
+            "searchUrl": "https://dmbus.cc/s----------.html?wd={keyword}",
+            "rawBaseUrl": "https://dmbus.cc/",
+            "subjectFormatId": "indexed",
+            "selectorSubjectFormatIndexed": {
+              "selectNames": ".v_list > li > .item > a.title",
+              "selectLinks": ".v_list > li > .item > a.title"
+            },
+            "channelFormatId": "index-grouped",
+            "selectorChannelFormatFlattened": {
+              "selectChannelNames": ".play_from > li",
+              "matchChannelName": "",
+              "selectEpisodeLists": "#play_list > ul.play_list",
+              "selectEpisodesFromList": "li > a[href]",
+              "selectEpisodeLinksFromList": "",
+              "matchEpisodeSortFromName": "(?:第\\s*)?(?<ep>\\d+(?:\\.\\d+)?)(?:\\s*[话集])?"
+            },
+            "matchVideo": {
+              "enableNestedUrl": true,
+              "matchNestedUrl": "^https?://hhjx\\.hhplayer\\.com/\\?",
+              "matchVideoUrl": "(?i)^https?://[^\\s\"<>]+\\.(?:mp4|mkv|m3u8)(?:[?#][^\\s\"<>]*)?$",
+              "cookies": "",
+              "addHeadersToVideo": {
+                "referer": "",
+                "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3"
+              }
+            }
+          }
+        }
+      }
+    ]
+  }
+}

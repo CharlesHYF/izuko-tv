@@ -32,7 +32,7 @@ import kotlin.test.assertTrue
 class BundledSubscriptionsTest {
     private val bt = "https://sub.creamycake.org/v1/bt1.json"
     private val retired = BundledSubscriptions.retiredUrls.single()
-    private val bundled = BundledSubscriptions.urls.single()
+    private val bundled = BundledSubscriptions.urls
 
     private val marks = mutableSetOf<String>()
     private val queried = mutableListOf<String>()
@@ -69,17 +69,28 @@ class BundledSubscriptionsTest {
     private suspend fun MediaSourceSubscriptionRepository.urls() = flow.first().map { it.url }
 
     @Test
-    fun `new installs get upstream defaults without the retired subscription - plus the bundled one`() {
-        val upstream = listOf(MediaSourceSubscription("a", bt), MediaSourceSubscription("b", retired))
-        assertEquals(listOf(bt, bundled), BundledSubscriptions.withDefaults(upstream).map { it.url })
-        assertEquals(listOf(bt, bundled), MediaSourceSubscriptionsSaveData.Default.list.map { it.url })
+    fun `bundled urls include KazumiTV subscription`() {
+        assertEquals(
+            listOf(
+                "https://raw.githubusercontent.com/weixianweide/sources/main/subscription.json",
+                "https://raw.githubusercontent.com/CharlesHYF/izuko-tv/main/subscriptions/kazumi-tv.json",
+            ),
+            BundledSubscriptions.urls,
+        )
     }
 
     @Test
-    fun `existing users lose the retired subscription with its sources and get the bundled one`() = runTest {
+    fun `new installs get upstream defaults without the retired subscription - plus bundled subscriptions`() {
+        val upstream = listOf(MediaSourceSubscription("a", bt), MediaSourceSubscription("b", retired))
+        assertEquals(listOf(bt) + bundled, BundledSubscriptions.withDefaults(upstream).map { it.url })
+        assertEquals(listOf(bt) + bundled, MediaSourceSubscriptionsSaveData.Default.list.map { it.url })
+    }
+
+    @Test
+    fun `existing users lose the retired subscription with its sources and get bundled subscriptions`() = runTest {
         val repository = repository(bt, retired)
         reconcile(repository)
-        assertEquals(listOf(bt, bundled), repository.urls())
+        assertEquals(listOf(bt) + bundled, repository.urls())
         assertEquals(listOf("s1"), queried) // 删的是它带来的数据源
     }
 
@@ -96,7 +107,9 @@ class BundledSubscriptionsTest {
     fun `a bundled subscription the user deleted is not added back`() = runTest {
         val repository = repository(bt)
         reconcile(repository)
-        repository.remove(repository.flow.first().single { it.url == bundled })
+        for (url in bundled) {
+            repository.remove(repository.flow.first().single { it.url == url })
+        }
         reconcile(repository)
         assertEquals(listOf(bt), repository.urls())
     }
